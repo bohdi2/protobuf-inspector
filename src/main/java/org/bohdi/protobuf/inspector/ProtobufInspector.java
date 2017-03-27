@@ -94,6 +94,33 @@ public class ProtobufInspector {
         return this;
     }
 
+    public ProtobufInspector expect(Expectation... expectations) {
+        ProtobufInspector pi = this;
+
+        for (Expectation expectation : expectations) {
+            pi = expectation.apply(pi);
+        }
+        return pi;
+    }
+
+    public ProtobufInspector map(Expectation... expectations) {
+        return map(Arrays.asList(expectations));
+    }
+
+    public ProtobufInspector map(List<Expectation> list) {
+        if (list.isEmpty())
+            return this;
+
+        int len = list.size();
+        ProtobufInspector pi = list.get(0).apply(this);
+
+        for (int i = 1; i<len; i++) {
+            pi = pi.nextMessage();
+            pi = list.get(i).apply(pi);
+        }
+        return pi;
+    }
+
     // assert that current message contains path and value
     public ProtobufInspector expectField(String path, Object expectedValue) {
         String name = String.format("check expectField(%s, %s)", path, expectedValue);

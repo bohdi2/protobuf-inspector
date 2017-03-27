@@ -8,6 +8,8 @@ import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bohdi.protobuf.inspector.ExpectationHelper.*;
+import static org.bohdi.protobuf.inspector.ProtobufHelper.*;
 
 public class ProtobufInspectorTest {
 
@@ -34,7 +36,7 @@ public class ProtobufInspectorTest {
                 .expectEnd();
     }
 
-    //@Test
+    @Test
     public void test_Simple_Lookups_With_Multiple_Messages() {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());
@@ -89,14 +91,16 @@ public class ProtobufInspectorTest {
         ProtobufInspector inspector = new ProtobufInspector(list);
 
         inspector
-                // 3 messages in total
+                // 4 messages in total
                 .expectMessages(4)
                 .filterType(Car.Sedan.class)
                 .expectField("make", "Honda")
 
-                // 2 request messages for securityId 123
+                // but just 3 cars
                 .expectMessages(3)
                 .filterField("make", "Honda")
+
+                // and just 2 Hondas
                 .expectMessages(2)
                 .expectType(Car.Sedan.class)
                 .expectField("year", 1999)
@@ -113,15 +117,15 @@ public class ProtobufInspectorTest {
                 // 4 messages in total
                 .expectMessages(4)
                 .filterType(Car.Sedan.class)
-                .filterField("year", 1999)
+                .filter(is1999)
 
                 // Only one request message for securityId 124
                 .expectMessages(2)
                 .expectType(Car.Sedan.class)
-                .expectField("make", "Honda")
+                .expect(isHonda)
                 .nextMessage()
                 .expectType(Car.Sedan.class)
-                .expectField("make", "Toyota")
+                .expect(isToyota)
                  .expectEnd();
     }
 
@@ -178,55 +182,6 @@ public class ProtobufInspectorTest {
     }
 
     // We just need any protobuf that has nested and repeating fields.
-
-    AddressBookProtos.AddressBook createJoeAndSue() {
-        AddressBookProtos.AddressBook.Builder builder = AddressBookProtos.AddressBook.newBuilder();
-        builder
-                .setName("Joe and Sue's Address Book")
-
-                .addPeople(0, AddressBookProtos.Person.newBuilder()
-                        .setName("Joe")
-                        .addPhones(0, AddressBookProtos.Person.PhoneNumber.newBuilder()
-                                .setNumber("123456")
-                                .setType(AddressBookProtos.Person.PhoneType.HOME)))
-
-                .addPeople(1, AddressBookProtos.Person.newBuilder()
-                        .setName("Sue")
-                        .addPhones(0, AddressBookProtos.Person.PhoneNumber.newBuilder()
-                                .setNumber("123")
-                                .setType(AddressBookProtos.Person.PhoneType.MOBILE))
-                        .addPhones(1, AddressBookProtos.Person.PhoneNumber.newBuilder()
-                                .setNumber("456")
-                                .setType(AddressBookProtos.Person.PhoneType.WORK)))
-        ;
-
-
-        return builder.build();
-    }
-
-    AddressBookProtos.AddressBook createFrank() {
-        AddressBookProtos.AddressBook.Builder builder = AddressBookProtos.AddressBook.newBuilder();
-        builder
-                .setName("Frank's Address Book")
-
-                .addPeople(0, AddressBookProtos.Person.newBuilder()
-                        .setName("Joe")
-                        .addPhones(0, AddressBookProtos.Person.PhoneNumber.newBuilder()
-                                .setNumber("123456")
-                                .setType(AddressBookProtos.Person.PhoneType.HOME)))
-        ;
-
-
-        return builder.build();
-    }
-
-    Car.Sedan createCar(String make, int year) {
-
-        return Car.Sedan.newBuilder()
-                .setMake(make)
-                .setYear(year)
-                .build();
-    }
 
 
 }

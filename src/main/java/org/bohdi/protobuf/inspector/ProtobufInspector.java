@@ -72,8 +72,7 @@ public class ProtobufInspector {
         List<Message> found = new ArrayList<Message>();
 
         for (Message protobuf : protobufs) {
-            Object o = extractField(path, protobuf);
-            if (expectedValue.getClass().equals(o.getClass()) && expectedValue.equals(o))
+            if (filterField(protobuf, path, expectedValue))
                 found.add(protobuf);
         }
 
@@ -82,6 +81,24 @@ public class ProtobufInspector {
         return new ProtobufInspector(audit, found);
     }
 
+    // Return new ProtobufInspector containing only messages that contain the path and expected values
+    public ProtobufInspector filter(Expectation expectation) {
+        List<Message> found = new ArrayList<Message>();
+
+        for (Message protobuf : protobufs) {
+            if (expectation.filter(this, protobuf))
+                found.add(protobuf);
+        }
+
+        audit = audit.comment(String.format("filter(%s) removed %d messages", expectation, protobufs.size() - found.size()));
+
+        return new ProtobufInspector(audit, found);
+    }
+
+    public boolean filterField(Message protobuf, String path, Object expectedValue) {
+        Object o = extractField(path, protobuf);
+        return (expectedValue.getClass().equals(o.getClass()) && expectedValue.equals(o));
+    }
 
     // assert that current message is of type clazz
     public ProtobufInspector expectType(Class clazz) {
@@ -258,7 +275,6 @@ public class ProtobufInspector {
         else {
             audit = audit.fail(String.format("<%s> != <%s> // %s", name, actual, comment));
             throw new ProtobufInspectorException(audit);
-            //throw new ProtobufInspectorException(audit);
         }
     }
 
@@ -277,13 +293,11 @@ public class ProtobufInspector {
                 //audit = audit.fail(badComment + " expected2: " + expected + ", actual: " + actual);
                 audit = audit.fail(String.format(name + " <%s> != <%s>", expected, actual));
                 throw new ProtobufInspectorException(audit);
-                //throw new ProtobufInspectorException(audit);
             }
         }
         else {
             audit = audit.fail(String.format(name + "class %s != %s", expected.getClass(), actual.getClass()));
             throw new ProtobufInspectorException(audit);
-            //throw new ProtobufInspectorException(audit);
         }
     }
 
@@ -294,7 +308,6 @@ public class ProtobufInspector {
         else {
             audit = audit.fail(comment);
             throw new ProtobufInspectorException(audit);
-            //throw new ProtobufInspectorException(audit);
         }
     }
 
@@ -304,7 +317,6 @@ public class ProtobufInspector {
         else {
             audit = audit.fail(comment);
             throw new ProtobufInspectorException(audit);
-            //throw new ProtobufInspectorException(audit);
         }
     }
 
@@ -314,7 +326,6 @@ public class ProtobufInspector {
         else {
             audit = audit.fail(comment);
             throw new ProtobufInspectorException(audit);
-            //throw new ProtobufInspectorException(audit);
         }
     }
 

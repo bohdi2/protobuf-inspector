@@ -1,7 +1,9 @@
 package org.bohdi.protobuf.inspector;
 
 
-public interface Expectation {
+import com.google.protobuf.Message;
 
+public interface Expectation {
     ProtobufInspector apply(ProtobufInspector protobufInspector);
+    boolean filter(ProtobufInspector protobufInspector, Message message);
 }

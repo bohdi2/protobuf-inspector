@@ -1,16 +1,11 @@
 package org.bohdi.protobuf.inspector;
 
 
-import com.google.protobuf.Message;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class ProtobufInspector<T extends Message> {
-    private final Pattern indexPattern; // Finds embedded array indexes: [n]
+
+public class ProtobufInspector<T> implements InspectorAssert {
     private final List<T> protobufs;
     private Audit audit;
 
@@ -21,7 +16,6 @@ public class ProtobufInspector<T extends Message> {
     public ProtobufInspector(Audit audit, List<T> protobufs) {
         //assert messages.size() > 0 : "Empty messages";
         this.protobufs = new ArrayList<T>(protobufs);
-        indexPattern = Pattern.compile("(.*?)\\[(\\d+)\\](.*)");
         this.audit=audit;
     }
 
@@ -108,10 +102,11 @@ public class ProtobufInspector<T extends Message> {
     }
 
     public ProtobufInspector<T> expect(Expectation... expectations) {
+        T protobuf = protobufs.get(0);
         ProtobufInspector<T> pi = this;
 
         for (Expectation expectation : expectations) {
-            pi = expectation.check(pi); // This will throw if test fails
+            pi = expectation.check(pi, null, protobuf); // This will throw if test fails
         }
         return pi;
     }
@@ -127,27 +122,29 @@ public class ProtobufInspector<T extends Message> {
     }
 
     public ProtobufInspector<T> expect(Object expected, Function<T> function) {
+        //System.err.println("pi.expect()");
         assertEquals("xxx3", "Comment", expected, function.op(protobufs.get(0)));
+        //System.err.println("pi.expect() done");
         return this;
     }
 
-    public ProtobufInspector<T> map(Expectation... expectations) {
-        return map(Arrays.asList(expectations));
-    }
-
-    public ProtobufInspector<T> map(List<Expectation> list) {
-        if (list.isEmpty())
-            return this;
-
-        int len = list.size();
-        ProtobufInspector<T> pi = list.get(0).check(this);
-
-        for (int i = 1; i<len; i++) {
-            pi = pi.nextMessage();
-            pi = list.get(i).check(pi);
-        }
-        return pi;
-    }
+//    public ProtobufInspector<T> map(Expectation... expectations) {
+//        return map(Arrays.asList(expectations));
+//    }
+//
+//    public ProtobufInspector<T> map(List<Expectation> list) {
+//        if (list.isEmpty())
+//            return this;
+//
+//        int len = list.size();
+//        ProtobufInspector<T> pi = list.get(0).check(this);
+//
+//        for (int i = 1; i<len; i++) {
+//            pi = pi.nextMessage();
+//            pi = list.get(i).check(pi);
+//        }
+//        return pi;
+//    }
 
 
     public ProtobufInspector<T> expectString(String s, Function<T> function) {
@@ -179,7 +176,7 @@ public class ProtobufInspector<T extends Message> {
 
     public ProtobufInspector<T> dumpAll(String comment) {
         int index = 0;
-        for (Message protobuf : protobufs) {
+        for (T protobuf : protobufs) {
             System.err.format("Message[%d](%s): %s%n", index++, comment, protobuf);
         }
 
@@ -191,24 +188,14 @@ public class ProtobufInspector<T extends Message> {
 
     private String toClassString() {
         List<String> classes = new ArrayList<String>(protobufs.size());
-        for (Message m : protobufs)
+        for (T m : protobufs)
             classes.add(m.getClass().getSimpleName());
 
         return "[" + Utils.join(classes, ", ") + "]";
     }
 
-    private void assertEquals(String nameTemplate, String comment, int expected, int actual) {
-        String name = String.format(nameTemplate, expected);
 
-        if (expected == actual)
-            audit = audit.success(String.format("%s // %s", name, comment));
-        else {
-            audit = audit.fail(String.format("<%s> != <%s> // %s", name, actual, comment));
-            throw new ProtobufInspectorException(audit);
-        }
-    }
-
-    private void assertEquals(String name, String comment, Object expected, Object actual) {
+    public void assertEquals(String name, String comment, Object expected, Object actual) {
 
         //System.err.format("assertEquals(name=%s, comment=%s, expected=%s, actual=%s%n", name, comment, expected, actual);
 
@@ -232,7 +219,7 @@ public class ProtobufInspector<T extends Message> {
     }
 
 
-    private void assertNotNull(String comment, Object actual) {
+    public void assertNotNull(String comment, Object actual) {
         if (null != actual)
             audit = audit.success(comment);
         else {
@@ -241,7 +228,7 @@ public class ProtobufInspector<T extends Message> {
         }
     }
 
-    private void assertFalse(String comment, boolean actual) {
+    public void assertFalse(String comment, boolean actual) {
         if (!actual)
             audit = audit.success(comment);
         else {
@@ -250,7 +237,7 @@ public class ProtobufInspector<T extends Message> {
         }
     }
 
-    private void assertTrue(String comment, boolean actual) {
+    public void assertTrue(String comment, boolean actual) {
         if (actual)
             audit = audit.success(comment);
         else {

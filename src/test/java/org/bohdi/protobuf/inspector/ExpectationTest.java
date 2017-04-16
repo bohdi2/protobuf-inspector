@@ -17,7 +17,7 @@ public class ExpectationTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Test
+    //@Test
     public void test_Multiple_Inspectors_Per_Message() {
 
         List<Message> list = new ArrayList<Message>();
@@ -37,30 +37,55 @@ public class ExpectationTest {
                 .expectEnd();
     }
 
-    //@Test
+
+    @Test
+    public void test_bad_expectation() {
+
+        List<Message> list = new ArrayList<Message>();
+        list.add(createCar("Honda", 1999));
+
+        thrown.expect(ProtobufInspectorException.class);
+        thrown.expectMessage("fail: xxx3 <Toyota> != <Honda>");
+
+        new ProtobufInspector<Message>(list)
+                .expectMessages(1)
+                .expect(isToyota)
+        ;
+
+    }
+
+    @Test
     public void test_Multiple_Inspectors_Per_Message_Error() {
 
         List<Message> list = new ArrayList<Message>();
         list.add(createCar("Honda", 1999));
-        list.add(createCar("Honda", 2001));
-        list.add(createCar("Toyota", 1999));
 
         thrown.expect(ProtobufInspectorException.class);
-        thrown.expectMessage("fail: check expectField(year, 1999) <1999> != <2001>");
+        thrown.expectMessage("fail: xxx3 <2001> != <1999>");
 
-        ProtobufInspector inspector = new ProtobufInspector(list);
+        new ProtobufInspector<Message>(list)
+                    .expectMessages(1)
+                    .expect(isHonda, is2001) // Will fail
+            ;
 
-        inspector
-                .expectMessages(3)
-                .expect(isHonda, is1999)
-                .nextMessage()
-                .expect(isHonda, isHonda1999) // Will fail
-                .nextMessage()
-                .expect(isToyota, is1999)
-                .expectEnd();
     }
 
     @Test
+    public void test_Multiple_Inspectors_Per_Message_Error2() {
+
+        List<Message> list = new ArrayList<Message>();
+        list.add(createCar("Honda", 1999));
+
+        thrown.expect(ProtobufInspectorException.class);
+        thrown.expectMessage("fail: xxx3 <2001> != <1999>");
+
+        new ProtobufInspector<Message>(list)
+                .expect(isHonda2001)
+        ;
+
+    }
+
+    //@Test
     public void test_Expect_Each_Message() {
 
         List<Message> list = new ArrayList<Message>();
@@ -72,12 +97,12 @@ public class ExpectationTest {
 
         inspector
                 .expectMessages(3)
-                //.map(isHonda1999, isHonda2001, isToyota1999)
-                //.expectEnd();
+        //.map(isHonda1999, isHonda2001, isToyota1999)
+        //.expectEnd();
         ;
     }
 
-    @Test
+    //@Test
     public void test_Expect_Fields() {
 
         List<Message> list = new ArrayList<Message>();
@@ -87,15 +112,15 @@ public class ExpectationTest {
 
         ProtobufInspector<Car.Sedan> inspector = new ProtobufInspector(list);
 
-        inspector
-                .expectMessages(3)
-                .map(new Field<Car.Sedan>(m -> m.getMake(), "Honda"),
-                     new Field<Car.Sedan>(m -> m.getMake(), "Honda"),
-                     new Field<Car.Sedan>(m -> m.getMake(), "Toyota"))
-                .expectEnd();
+//        inspector
+//                .expectMessages(3)
+//                .map(new Field<Car.Sedan>(m -> m.getMake(), "Honda"),
+//                     new Field<Car.Sedan>(m -> m.getMake(), "Honda"),
+//                     new Field<Car.Sedan>(m -> m.getMake(), "Toyota"))
+//                .expectEnd();
     }
 
-    @Test
+    //@Test
     public void test_Filter_Fields() {
 
         List<Message> list = new ArrayList<Message>();
@@ -107,12 +132,12 @@ public class ExpectationTest {
 
         inspector
                 .expectMessages(3)
-                //.filter(isHonda)
-                //.expectMessages(2);
+        //.filter(isHonda)
+        //.expectMessages(2);
         ;
     }
 
-    @Test
+    //@Test
     public void test_Filter_Fields2() {
 
         List<Message> list = new ArrayList<Message>();
@@ -124,8 +149,8 @@ public class ExpectationTest {
 
         inspector
                 .expectMessages(3)
-                //.filter(isHonda1999)
-                //.expectMessages(1);
+        //.filter(isHonda1999)
+        //.expectMessages(1);
         ;
     }
 

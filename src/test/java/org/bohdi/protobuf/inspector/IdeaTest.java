@@ -18,10 +18,7 @@ public class IdeaTest {
         objects.add("Goodbye");
         objects.add(new Object());
 
-        System.out.println("----------");
-        List<String> ss = filter(String.class, objects);
-        for (String s : ss)
-            System.out.println("> " + s);
+
 
     }
 

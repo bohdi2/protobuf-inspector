@@ -18,7 +18,7 @@ public class ProtobufInspectorTest {
 
 
 
-    @Test
+    //@Test
     public void test_Simple_Lookups_With_Multiple_Messages() {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());
@@ -35,14 +35,14 @@ public class ProtobufInspectorTest {
                 .expectEnd();
     }
 
-    @Test
+    //@Test
     public void test_Expect_Size_0() {
         List<Message> list = new ArrayList<Message>();
         ProtobufInspector inspector = new ProtobufInspector(list);
         inspector.expectMessages(0);
     }
 
-    @Test
+    //@Test
     public void test_Expect_Size_Not_0() {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());
@@ -62,7 +62,7 @@ public class ProtobufInspectorTest {
 
 
 
-    @Test
+    //@Test
     public void test_expect() {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());
@@ -90,7 +90,7 @@ public class ProtobufInspectorTest {
 
 
 
-    @Test
+    //@Test
     public void test_filter() {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());

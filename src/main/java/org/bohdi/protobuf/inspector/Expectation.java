@@ -6,10 +6,10 @@ import com.google.protobuf.Message;
 // An accessor and expected result
 // An expectation expects to find a specific value in a message.
 
-public interface Expectation<T extends Message> {
+public interface Expectation<T> {
     // Assert that the expectation is true
-    ProtobufInspector check(ProtobufInspector<T> protobufInspector);
+    ProtobufInspector check(ProtobufInspector<T> protobufInspector, InspectorAssert inspectorAssert, T message);
 
     // Test if the expectation is true
-    boolean filter(ProtobufInspector protobufInspector, T message);
+    boolean filter(ProtobufInspector<T> protobufInspector, T message);
 }

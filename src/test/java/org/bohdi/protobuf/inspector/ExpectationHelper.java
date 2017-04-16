@@ -12,7 +12,7 @@ class ExpectationHelper {
     static final Expectation isHonda2001 = new IsSedan(isHonda, is2001);
     static final Expectation isToyota1999 = new IsSedan(isToyota, is1999);
 
-    static class IsSedan implements Expectation {
+    static class IsSedan implements Expectation<Car.Sedan> {
         private final Field make;
         private final Field year;
 
@@ -20,15 +20,16 @@ class ExpectationHelper {
             this.make = make;
             this.year = year;
         }
-        public ProtobufInspector<Car.Sedan> check(ProtobufInspector protobufInspector) {
+        public ProtobufInspector<Car.Sedan> check(ProtobufInspector<Car.Sedan> protobufInspector, InspectorAssert inspectorAssert, Car.Sedan message) {
             return protobufInspector
                     .filterType(Car.Sedan.class)
                     .expectType(Car.Sedan.class)
                     .expect(isHonda)
+                    .expect(isHonda)
                     .expect(is2001);
         }
 
-        public boolean filter(ProtobufInspector protobufInspector, Message message) {
+        public boolean filter(ProtobufInspector<Car.Sedan> protobufInspector, Car.Sedan message) {
             return true;
             //return protobufInspector.filter(make, m->m.getMake()) && protobufInspector.filter(message, "year", year);
         }

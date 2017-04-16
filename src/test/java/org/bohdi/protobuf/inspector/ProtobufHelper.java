@@ -10,12 +10,14 @@ class ProtobufHelper {
 
                 .addPeople(0, AddressBookProtos.Person.newBuilder()
                         .setName("Joe")
+                        .setId(567)
                         .addPhones(0, AddressBookProtos.Person.PhoneNumber.newBuilder()
                                 .setNumber("123456")
                                 .setType(AddressBookProtos.Person.PhoneType.HOME)))
 
                 .addPeople(1, AddressBookProtos.Person.newBuilder()
                         .setName("Sue")
+                        .setId(890)
                         .addPhones(0, AddressBookProtos.Person.PhoneNumber.newBuilder()
                                 .setNumber("123")
                                 .setType(AddressBookProtos.Person.PhoneType.MOBILE))

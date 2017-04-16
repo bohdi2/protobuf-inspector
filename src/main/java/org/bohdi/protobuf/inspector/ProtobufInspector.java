@@ -1,7 +1,6 @@
 package org.bohdi.protobuf.inspector;
 
 
-import com.google.protobuf.Descriptors;
 import com.google.protobuf.Message;
 
 import java.util.ArrayList;
@@ -10,24 +9,24 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProtobufInspector {
+public class ProtobufInspector<T extends Message> {
     private final Pattern indexPattern; // Finds embedded array indexes: [n]
-    private final List<Message> protobufs;
+    private final List<T> protobufs;
     private Audit audit;
 
-    public ProtobufInspector(List<Message> protobufs) {
+    public ProtobufInspector(List<T> protobufs) {
         this(new Audit(), protobufs);
     }
 
-    public ProtobufInspector(Audit audit, List<Message> protobufs) {
+    public ProtobufInspector(Audit audit, List<T> protobufs) {
         //assert messages.size() > 0 : "Empty messages";
-        this.protobufs = new ArrayList<Message>(protobufs);
+        this.protobufs = new ArrayList<T>(protobufs);
         indexPattern = Pattern.compile("(.*?)\\[(\\d+)\\](.*)");
         this.audit=audit;
     }
 
 
-    public ProtobufInspector expectMessages(int n) {
+    public ProtobufInspector<T> expectMessages(int n) {
 
         assertEquals(String.format("expectMessages(%d)", n),
                      toClassString(),
@@ -39,69 +38,35 @@ public class ProtobufInspector {
 
 
 
-    public ProtobufInspector nextMessage() {
+    public ProtobufInspector<T> nextMessage() {
         assertTrue("nextMessage ", protobufs.size() > 1);
-        //if (messages.size() <= 1) {
-        //    audit = audit.fail("nextMessage() failed. No more messages.");
-        //    audit = audit.success("nextMessage() failed. No more messages.");
-        //    throw new ProtobufInspectorException(audit);
-        //}
-        //else {
-        //    audit = audit.success("nextMessage() ok.");
-        //}
+        return new ProtobufInspector<T>(audit, tail(protobufs));
+    }
 
-        return new ProtobufInspector(audit, tail(protobufs));
+    // assert there are no more messages in ProtobufInspector
+    public ProtobufInspector<T> expectEnd() {
+        assertEquals(protobufs.toString(), "bad", protobufs.size(), 1);
+        return this;
     }
 
     // Return new ProtobufInspector containing only messages of type clazz
-    public ProtobufInspector filterType(Class clazz) {
+    public <C extends T> ProtobufInspector<C> filterType(Class<C> clazz) {
 
-        List<Message> found = new ArrayList<Message>();
+        List<C> found = new ArrayList<C>();
 
-        for (Message protobuf : protobufs) {
+        for (T protobuf : protobufs) {
             if (clazz.isInstance(protobuf))
-                found.add(protobuf);
+                found.add((C) protobuf);
         }
 
         audit = audit.comment(String.format("filterType(%s) removed %d messages", clazz, protobufs.size() - found.size()));
-        return new ProtobufInspector(audit, found);
+        return new ProtobufInspector<C>(audit, found);
     }
 
-    // Return new ProtobufInspector containing only messages that contain the path and expected values
-    public ProtobufInspector filterField(String path, Object expectedValue) {
-        List<Message> found = new ArrayList<Message>();
 
-        for (Message protobuf : protobufs) {
-            if (filterField(protobuf, path, expectedValue))
-                found.add(protobuf);
-        }
-
-        audit = audit.comment(String.format("filterField(%s, %s) removed %d messages", path, expectedValue, protobufs.size() - found.size()));
-
-        return new ProtobufInspector(audit, found);
-    }
-
-    // Return new ProtobufInspector containing only messages that contain the path and expected values
-    public ProtobufInspector filter(Expectation expectation) {
-        List<Message> found = new ArrayList<Message>();
-
-        for (Message protobuf : protobufs) {
-            if (expectation.filter(this, protobuf))
-                found.add(protobuf);
-        }
-
-        audit = audit.comment(String.format("filter(%s) removed %d messages", expectation, protobufs.size() - found.size()));
-
-        return new ProtobufInspector(audit, found);
-    }
-
-    public boolean filterField(Message protobuf, String path, Object expectedValue) {
-        Object o = extractField(path, protobuf);
-        return (expectedValue.getClass().equals(o.getClass()) && expectedValue.equals(o));
-    }
 
     // assert that current message is of type clazz
-    public ProtobufInspector expectType(Class clazz) {
+    public ProtobufInspector<T> expectType(Class clazz) {
         String name = String.format("expectType(%s)", clazz.getSimpleName());
 
         assertEquals(name,
@@ -111,126 +76,99 @@ public class ProtobufInspector {
         return this;
     }
 
-    public ProtobufInspector expect(Expectation... expectations) {
-        ProtobufInspector pi = this;
+
+    // Return new ProtobufInspector containing only messages that satisfy the expectations
+    //public ProtobufInspector<T> filter(Expectation expectation) {
+    //    List<T> found = new ArrayList<T>();
+
+    //    for (T protobuf : protobufs) {
+    //        if (expectation.filter(this, protobuf))
+    //            found.add(protobuf);
+    //    }
+
+    //    audit = audit.comment(String.format("filter(%s) removed %d messages", expectation, protobufs.size() - found.size()));
+
+    //    return new ProtobufInspector<T>(audit, found);
+    //}
+
+
+    public ProtobufInspector<T> filter(Object expected, Function<T> function) {
+        assertEquals("xxx", "Comment", expected, function.op(protobufs.get(0)));
+
+        List<T> found = new ArrayList<T>();
+
+        for (T protobuf : protobufs) {
+            if (function.op(protobuf).equals(expected))
+                found.add(protobuf);
+        }
+
+        audit = audit.comment(String.format("filter(%s) removed %d messages", function, protobufs.size() - found.size()));
+
+        return new ProtobufInspector<T>(audit, found);
+    }
+
+    public ProtobufInspector<T> expect(Expectation... expectations) {
+        ProtobufInspector<T> pi = this;
 
         for (Expectation expectation : expectations) {
-            pi = expectation.apply(pi);
+            pi = expectation.check(pi); // This will throw if test fails
         }
         return pi;
     }
 
-    public ProtobufInspector map(Expectation... expectations) {
+    public ProtobufInspector<T> expect(Integer expected, Function<T> function) {
+        assertEquals("xxx1", "Comment", expected, function.op(protobufs.get(0)));
+        return this;
+    }
+
+    public ProtobufInspector<T> expect(String expected, Function<T> function) {
+        assertEquals("xxx2", "Comment", expected, function.op(protobufs.get(0)));
+        return this;
+    }
+
+    public ProtobufInspector<T> expect(Object expected, Function<T> function) {
+        assertEquals("xxx3", "Comment", expected, function.op(protobufs.get(0)));
+        return this;
+    }
+
+    public ProtobufInspector<T> map(Expectation... expectations) {
         return map(Arrays.asList(expectations));
     }
 
-    public ProtobufInspector map(List<Expectation> list) {
+    public ProtobufInspector<T> map(List<Expectation> list) {
         if (list.isEmpty())
             return this;
 
         int len = list.size();
-        ProtobufInspector pi = list.get(0).apply(this);
+        ProtobufInspector<T> pi = list.get(0).check(this);
 
         for (int i = 1; i<len; i++) {
             pi = pi.nextMessage();
-            pi = list.get(i).apply(pi);
+            pi = list.get(i).check(pi);
         }
         return pi;
     }
 
-    // assert that current message contains path and value
-    public ProtobufInspector expectField(String path, Object expectedValue) {
-        String name = String.format("check expectField(%s, %s)", path, expectedValue);
 
-        Object o = extractField(path, protobufs.get(0));
-
-        assertEquals(name, "",  expectedValue, o);
+    public ProtobufInspector<T> expectString(String s, Function<T> function) {
+        assertEquals("xxx4", "Comment", s, function.op(protobufs.get(0)).toString());
         return this;
     }
 
 
-    private Object extractField(String path, Message proto) {
-        return extractField("", Arrays.asList(path.split("\\.")), proto);
-    }
-
-    private Object extractField(String comment, List<String> path, Message proto) {
-        assert !path.isEmpty();
-
-        //System.err.format("extractField(%s, %d, proto)%n", comment, path.size());
-
-        String fieldName = path.get(0);
-
-        if (path.size() == 1) {
-            Matcher m = indexPattern.matcher(fieldName);
-
-            if (m.matches()) {
-                // ....fieldname[n]
-                //System.err.println("...field[]: " + fieldName);
-
-                Descriptors.FieldDescriptor field = proto.getDescriptorForType().findFieldByName(m.group(1));
-                assertNotNull("Check that terminal field \"" + fieldName + "[]\" exists ", field);
-
-                Object value = proto.getRepeatedField(field, Integer.parseInt(m.group(2)));
-                if (null != value && value instanceof Descriptors.EnumValueDescriptor) {
-                    return ((Descriptors.EnumValueDescriptor) value).getFullName();
-                }
-                return value;
-            }
-            else {
-                // ...fieldName
-                //System.err.println("...field: " + fieldName);
-
-                Descriptors.FieldDescriptor field = proto.getDescriptorForType().findFieldByName(fieldName);
-                //System.err.println("{D = " + field + "}");
-                assertNotNull("Check that terminal field \"" + fieldName + "\" exists ", field);
 
 
-                Object value = proto.getField(field);
-
-                if (null != value && value instanceof Descriptors.EnumValueDescriptor) {
-                    //System.err.println("ENUM: " + ((Descriptors.EnumValueDescriptor) value).getFullName().getClass());
-                    return ((Descriptors.EnumValueDescriptor) value).getFullName();
-                }
-                //System.err.println("VALUE: " + value);
-
-                return value;
-            }
-        }
-        else {
-            Matcher m = indexPattern.matcher(fieldName);
-
-            if (m.matches()) {
-                //System.err.println("...field[]...: " + fieldName);
-                // ...fieldName[n]...
-                Descriptors.FieldDescriptor field = proto.getDescriptorForType().findFieldByName(m.group(1));
-                assertNotNull("Check that interior field \"" + fieldName + "[]\" exists", field);
-
-                return extractField(comment + "  ", tail(path), (Message) proto.getRepeatedField(field, Integer.parseInt(m.group(2))));
-
-            }
-            else {
-                // ...fieldName...
-                //System.err.println("...field...: " + fieldName);
-                Descriptors.FieldDescriptor field = proto.getDescriptorForType().findFieldByName(fieldName);
-                assertNotNull("Check that interior field \"" + fieldName + "\" exists", field);
-
-                return extractField(comment + "  ", tail(path), (Message) proto.getField(field));
-            }
-        }
-
-    }
-
-    private <T> List<T> tail(List<T> ss) {
+    private <E> List<E> tail(List<E> ss) {
         return ss.subList(1, ss.size());
     }
 
     // Add a comment to audit trail
-    public ProtobufInspector comment(String s) {
+    public ProtobufInspector<T> comment(String s) {
         audit = audit.comment(s);
         return this;
     }
 
-    public ProtobufInspector dump(String comment) {
+    public ProtobufInspector<T> dump(String comment) {
         if (protobufs.isEmpty())
             System.err.format("Message[%s]: Empty%n", comment);
         else
@@ -239,7 +177,7 @@ public class ProtobufInspector {
         return this;
     }
 
-    public ProtobufInspector dumpAll(String comment) {
+    public ProtobufInspector<T> dumpAll(String comment) {
         int index = 0;
         for (Message protobuf : protobufs) {
             System.err.format("Message[%d](%s): %s%n", index++, comment, protobuf);
@@ -248,16 +186,8 @@ public class ProtobufInspector {
         return this;
     }
 
-    // assert there are no more messages in ProtobufInspector
-    public ProtobufInspector expectEnd() {
-        assertEquals(protobufs.toString(), "bad", protobufs.size(), 1);
-        return this;
-    }
 
-    public ProtobufInspector xclear() {
-        protobufs.clear();
-        return this;
-    }
+
 
     private String toClassString() {
         List<String> classes = new ArrayList<String>(protobufs.size());

@@ -1,32 +1,30 @@
 package org.bohdi.protobuf.inspector;
 
-import com.google.protobuf.Message;
-import com.google.protobuf.TextFormat;
 
+import java.util.function.Function;
+import java.util.function.Predicate;
 
-public class Field<T> implements Expectation<T> {
-    private final Function function;
-    private final Object value;
+public class Field<T, V> implements PiPredicate<T> {
+    private final String comment;
+    private final Function<T,V> f;
+    private final Predicate<V> p;
 
-    public Field(Function<T> function, Object value) {
-        this.function = function;
-        this.value = value;
+    public Field(String comment, Function<T, V> f, Predicate<V> p) {
+        this.comment = comment;
+        this.f = f;
+        this.p = p;
     }
 
-    public ProtobufInspector check(ProtobufInspector<T> protobufInspector, InspectorAssert inspectorAssert, T message) {
-        //System.err.println("Field.check() " + value + ", {" + TextFormat.shortDebugString((Message) message) + "}");
-        return protobufInspector.expect(value, function);
-        //return protobufInspector.xxexpectField(path, value);
+    public boolean test(ProtobufInspector<T> pi) {
+        boolean result = pi.test(f, p);
+        if (result) {
+            pi.success(comment);
+        }
+        else {
+            pi.fail(comment);
+        }
+        return result;
     }
 
-    public boolean filter(ProtobufInspector<T> protobufInspector, T message) {
-        return false;
-        //return protobufInspector.filter(value, function);
-        //return protobufInspector.filterField(message, path, value);
-    }
-
-    public String toString() {
-        return String.format("Field(%s, %s", "comment", value);
-    }
 
 }

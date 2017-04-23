@@ -1,8 +1,14 @@
 package org.bohdi.protobuf.inspector;
 
 
+import com.google.protobuf.Message;
+import com.google.protobuf.TextFormat;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
 
 
 public class ProtobufInspector<T> implements InspectorAssert {
@@ -43,6 +49,8 @@ public class ProtobufInspector<T> implements InspectorAssert {
         return this;
     }
 
+
+
     // Return new ProtobufInspector containing only messages of type clazz
     public <C extends T> ProtobufInspector<C> filterType(Class<C> clazz) {
 
@@ -71,28 +79,26 @@ public class ProtobufInspector<T> implements InspectorAssert {
     }
 
 
-    // Return new ProtobufInspector containing only messages that satisfy the expectations
-    //public ProtobufInspector<T> filter(Expectation expectation) {
-    //    List<T> found = new ArrayList<T>();
+    public boolean filter(Object expected, Function<T, Object> function, T message) {
 
-    //    for (T protobuf : protobufs) {
-    //        if (expectation.filter(this, protobuf))
-    //            found.add(protobuf);
-    //    }
+        Object actual = function.apply(message);
+        System.err.format("filter(expected=%s, actual=%s, return=%b, function, message=%s)%n",
+                          expected,
+                          actual,
+                          expected.equals(actual),
+                          TextFormat.shortDebugString((Message) message));
 
-    //    audit = audit.comment(String.format("filter(%s) removed %d messages", expectation, protobufs.size() - found.size()));
-
-    //    return new ProtobufInspector<T>(audit, found);
-    //}
+        return expected.equals(actual);
+    }
 
 
-    public ProtobufInspector<T> filter(Object expected, Function<T> function) {
-        assertEquals("xxx", "Comment", expected, function.op(protobufs.get(0)));
+    public ProtobufInspector<T> filter(Object expected, Function<T, Object> function) {
+        System.err.println("filter(expected, function)");
 
         List<T> found = new ArrayList<T>();
 
         for (T protobuf : protobufs) {
-            if (function.op(protobuf).equals(expected))
+            if (function.apply(protobuf).equals(expected))
                 found.add(protobuf);
         }
 
@@ -101,29 +107,72 @@ public class ProtobufInspector<T> implements InspectorAssert {
         return new ProtobufInspector<T>(audit, found);
     }
 
-    public ProtobufInspector<T> expect(Expectation... expectations) {
+
+    // Return new ProtobufInspector containing only messages that satisfy the expectation
+    public ProtobufInspector<T> filter(Expectation expectation) {
+        System.err.println("filter(expectation)");
+        List<T> found = new ArrayList<T>();
+
+        for (T protobuf : protobufs) {
+            if (expectation.filter(this, protobuf))
+                found.add(protobuf);
+        }
+
+        audit = audit.comment(String.format("filter(%s) removed %d messages", expectation, protobufs.size() - found.size()));
+
+        return new ProtobufInspector<T>(audit, found);
+    }
+
+    public <V> boolean test(Function<T, V> f, Predicate<V> p) {
+        return p.test(f.apply(protobufs.get(0)));
+    }
+
+    public boolean test(PiPredicate<T> p) {
+        return p.test(this);
+    }
+
+
+    public <V> ProtobufInspector<T> expectP(Function<T, V> f, Predicate<V> p) {
+        V value = f.apply(protobufs.get(0));
+        assertTrue("Actual: " + value, p.test(value));
+        return this;
+    }
+
+    public <V> ProtobufInspector<T> expect(Function<T, V> f, V expected) {
+        V value = f.apply(protobufs.get(0));
+        assertTrue("Actual: " + value, value.equals(expected));//p->p.equals(expected));//p.test(value));
+        return this;
+    }
+
+    public ProtobufInspector<T> expect(PiPredicate<T> p) {
+        assertTrue("X", p.test(this));
+        return this;
+
+    }
+
+    public ProtobufInspector<T> expect(PiPredicate<T>... predicates) {
         T protobuf = protobufs.get(0);
         ProtobufInspector<T> pi = this;
 
-        for (Expectation expectation : expectations) {
-            pi = expectation.check(pi, null, protobuf); // This will throw if test fails
+        for (PiPredicate<T> predicate : predicates) {
+            pi = pi.expect(predicate);
         }
         return pi;
     }
 
-    public ProtobufInspector<T> expect(Integer expected, Function<T> function) {
-        assertEquals("xxx1", "Comment", expected, function.op(protobufs.get(0)));
+    public ProtobufInspector<T> xexpect(Integer expected, Function<T, Integer> function) {
+        assertEquals("xxx1", "Comment", expected, function.apply(protobufs.get(0)));
         return this;
     }
 
-    public ProtobufInspector<T> expect(String expected, Function<T> function) {
-        assertEquals("xxx2", "Comment", expected, function.op(protobufs.get(0)));
+    public ProtobufInspector<T> xexpect(String expected, Function<T, String> function) {
+        assertEquals("xxx2", "Comment", expected, function.apply(protobufs.get(0)));
         return this;
     }
 
-    public ProtobufInspector<T> expect(Object expected, Function<T> function) {
+    public ProtobufInspector<T> xexpect(Object expected, Function<T, Object> function) {
         //System.err.println("pi.expect()");
-        assertEquals("xxx3", "Comment", expected, function.op(protobufs.get(0)));
+        assertEquals("xxx3", "Comment", expected, function.apply(protobufs.get(0)));
         //System.err.println("pi.expect() done");
         return this;
     }
@@ -147,8 +196,8 @@ public class ProtobufInspector<T> implements InspectorAssert {
 //    }
 
 
-    public ProtobufInspector<T> expectString(String s, Function<T> function) {
-        assertEquals("xxx4", "Comment", s, function.op(protobufs.get(0)).toString());
+    public ProtobufInspector<T> expectString(String s, Function<T, String> function) {
+        assertEquals("xxx4", "Comment", s, function.apply(protobufs.get(0)).toString());
         return this;
     }
 
@@ -244,6 +293,18 @@ public class ProtobufInspector<T> implements InspectorAssert {
             audit = audit.fail(comment);
             throw new ProtobufInspectorException(audit);
         }
+    }
+
+    public void success(String comment) {
+        audit = audit.success(comment);
+    }
+
+    public void fail(String comment) {
+        audit = audit.success(comment);
+    }
+
+    public Audit getAudit() {
+        return audit;
     }
 
 }

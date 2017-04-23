@@ -48,7 +48,7 @@ class Audit {
         return String.format("tests: %d, errors: %d, trace: %n%s",
                              tests,
                              errors,
-                             Utils.join(trace, "\n") + "\n");
+                             String.join("\n", trace) + "\n");
     }
 
 

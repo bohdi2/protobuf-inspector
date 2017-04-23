@@ -158,7 +158,7 @@ public class ProtobufInspectorTest {
 
     }
 
-    //@Test
+    @Test
     public void test_filter_predicates() {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());
@@ -172,20 +172,18 @@ public class ProtobufInspectorTest {
 
         ProtobufInspector<Message> inspector = new ProtobufInspector(list);
 
-        // Look at same set of messages again, just filter on a different securityId
-
         inspector
                 // 4 messages in total
                 .expectMessages(4)
                 .filterType(Car.Sedan.class)
                 .filter(is1999)
 
-                // Only one request message for securityId 124
                 .expectMessages(2)
                 .expectType(Car.Sedan.class)
                 .expectEquals(m->m.getMake(), "Honda")
                 .nextMessage()
-                //.expectType(Car.Sedan.class)
+
+                .expectType(Car.Sedan.class)
                 .expectEquals(m->m.getMake(), "Toyota")
                 .expectEnd()
         ;
@@ -209,8 +207,6 @@ public class ProtobufInspectorTest {
                 .filterType(Car.Sedan.class)
                 .filterEquals(m->m.getMake(), "Honda")
                 .filterEquals(m->m.getYear(), 2001)
-                //.filterField("make", "Honda")
-                //.filterField("year", 2001)
 
                 .expectMessages(1)
                 .expectType(Car.Sedan.class)
@@ -219,6 +215,27 @@ public class ProtobufInspectorTest {
                 .expectEnd();
     }
 
+    @Test
+    public void test_filter_with_multiple_predicates() {
+        List<Message> list = new ArrayList<Message>();
+        list.add(createJoeAndSue());
+        list.add(createCar("Honda", 1999));
+        list.add(createCar("Honda", 2001));
+        list.add(createCar("Toyota", 1999));
+
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
+
+        inspector
+                .expectMessages(4)
+                .filterType(Car.Sedan.class)
+                .filter(isHonda, is2001)
+
+                .expectMessages(1)
+                .expectType(Car.Sedan.class)
+                .expectEquals(m->m.getMake(), "Honda")
+                .expectEquals(m -> m.getYear(), 2001)
+                .expectEnd();
+    }
 
 
     //@Test

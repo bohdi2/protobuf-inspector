@@ -19,26 +19,17 @@ class ExpectationHelper {
             this.make = make;
             this.year = year;
         }
-        public boolean test(ProtobufInspector<Car.Sedan> pi) {
-            pi.comment("IsSedan");
-            boolean result = pi.test(make) && pi.test(year);
+        public boolean test(ProtobufInspector<Car.Sedan> auditor, Car.Sedan protobuf) {
+            auditor.comment("IsSedan");
+            boolean result = make.test(auditor, protobuf) && year.test(auditor, protobuf);
             if (result) {
-                pi.success("IsSedan: Good");
+                auditor.success("IsSedan: Good");
             }
             else {
-                pi.fail("IsSedan: No good");
+                auditor.fail("IsSedan: No good");
             }
             return result;
 
-        }
-
-        public boolean filter(ProtobufInspector<Car.Sedan> protobufInspector, Car.Sedan message) {
-            //return true;
-            //boolean flag1 =  protobufInspector.filter(make, m->m.getMake(), message);
-            //boolean flag1 =  protobufInspector.filter(make);//, m->m.getMake(), message);
-            //boolean flag2 =  protobufInspector.filter(year, m->m.getYear(), message);
-            //System.err.println("isSedan " + flag1 + ", " + flag2);
-            return true;//flag1 && flag2;
         }
 
         public String toString() {

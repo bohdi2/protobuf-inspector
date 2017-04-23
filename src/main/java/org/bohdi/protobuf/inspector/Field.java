@@ -15,13 +15,13 @@ public class Field<T, V> implements PiPredicate<T> {
         this.p = p;
     }
 
-    public boolean test(ProtobufInspector<T> pi) {
-        boolean result = pi.test(f, p);
+    public boolean test(ProtobufInspector<T> auditor, T t) {
+        boolean result = p.test(f.apply(t));
         if (result) {
-            pi.success(comment);
+            auditor.success(comment);
         }
         else {
-            pi.fail(comment);
+            auditor.fail(comment);
         }
         return result;
     }

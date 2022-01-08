@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 
-public class ProtobufInspector<T> implements InspectorAssert {
+public class ProtobufInspector<T> {
     private final List<T> protobufs;
     private AuditTrail audit;
 
@@ -249,11 +249,11 @@ public class ProtobufInspector<T> implements InspectorAssert {
         }
     }
 
-    public void success(String comment) {
+    public void recoredSuccess(String comment) {
         audit = audit.success(comment);
     }
 
-    public void fail(String comment) {
+    public void recordFailure(String comment) {
         audit = audit.success(comment);
     }
 

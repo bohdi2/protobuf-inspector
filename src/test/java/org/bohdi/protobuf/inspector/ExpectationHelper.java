@@ -23,10 +23,10 @@ class ExpectationHelper {
             auditor.comment("IsSedan");
             boolean result = make.test(auditor, protobuf) && year.test(auditor, protobuf);
             if (result) {
-                auditor.success("IsSedan: Good");
+                auditor.recoredSuccess("IsSedan: Good");
             }
             else {
-                auditor.fail("IsSedan: No good");
+                auditor.recordFailure("IsSedan: No good");
             }
             return result;
 

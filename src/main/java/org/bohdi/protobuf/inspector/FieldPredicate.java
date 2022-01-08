@@ -14,13 +14,13 @@ public class FieldPredicate<MessageT, FieldT> implements PiPredicate<MessageT> {
         this.fieldPredicate = fieldPredicate;
     }
 
-    public boolean test(ProtobufInspector<MessageT> auditor, MessageT protobufMessage) {
+    public boolean test(ProtobufInspector<MessageT> protobufInspector, MessageT protobufMessage) {
         boolean result = fieldPredicate.test(fieldExtractor.apply(protobufMessage));
         if (result) {
-            auditor.success(comment);
+            protobufInspector.recoredSuccess(comment);
         }
         else {
-            auditor.fail(comment);
+            protobufInspector.recordFailure(comment);
         }
         return result;
     }

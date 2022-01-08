@@ -3,10 +3,10 @@ package org.bohdi.protobuf.inspector;
 
 class ExpectationHelper {
 
-    static final Field<Car.Sedan, String> isHonda = new Field<>("Make", m->m.getMake(), v->v.equals("Honda"));
-    static final Field<Car.Sedan, String> isToyota = new Field<>("Make", m->m.getMake(), v->v.equals("Toyota"));
-    static final Field<Car.Sedan, Integer> is1999 = new Field<>("Year", m->m.getYear(),  v->v == 1999);
-    static final Field<Car.Sedan, Integer> is2001 = new Field<>("Year", m->m.getYear(),  v->v == 2001);
+    static final Field<Car.Sedan, String> isHonda = new Field<>("Make", Car.Sedan::getMake, v->v.equals("Honda"));
+    static final Field<Car.Sedan, String> isToyota = new Field<>("Make", Car.Sedan::getMake, v->v.equals("Toyota"));
+    static final Field<Car.Sedan, Integer> is1999 = new Field<>("Year", Car.Sedan::getYear, v->v == 1999);
+    static final Field<Car.Sedan, Integer> is2001 = new Field<>("Year", Car.Sedan::getYear, v->v == 2001);
     static final IsSedan isHonda1999 = new IsSedan(isHonda, is1999);
     static final IsSedan isHonda2001 = new IsSedan(isHonda, is2001);
     static final IsSedan isToyota1999 = new IsSedan(isToyota, is1999);

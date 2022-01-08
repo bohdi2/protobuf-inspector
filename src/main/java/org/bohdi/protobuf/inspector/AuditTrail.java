@@ -15,29 +15,29 @@ class AuditTrail {
     AuditTrail() {
         errors = 0;
         tests = 0;
-        trace = new ArrayList<String>();
+        trace = new ArrayList<>();
     }
 
     AuditTrail(int errors, int asserts, List<String> trace) {
         this.errors = errors;
         this.tests = asserts;
-        this.trace = new ArrayList<String>(trace);
+        this.trace = new ArrayList<>(trace);
     }
 
     AuditTrail success(String s) {
-        List newTrace = new ArrayList<String>(trace);
+        List<String> newTrace = new ArrayList<>(trace);
         newTrace.add("success: " + s);
         return new AuditTrail(errors, tests +1, newTrace);
     }
 
     AuditTrail fail(String s) {
-        List newTrace = new ArrayList<String>(trace);
+        List<String> newTrace = new ArrayList<>(trace);
         newTrace.add("fail: " + s);
         return new AuditTrail(errors+1, tests +1, newTrace);
     }
 
     AuditTrail comment(String s) {
-        List newTrace = new ArrayList<String>(trace);
+        List<String> newTrace = new ArrayList<>(trace);
         newTrace.add("comment: " + s);
         return new AuditTrail(errors, tests, newTrace);
     }

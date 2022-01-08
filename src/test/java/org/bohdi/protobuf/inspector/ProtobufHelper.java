@@ -3,7 +3,7 @@ package org.bohdi.protobuf.inspector;
 
 class ProtobufHelper {
 
-    static AddressBookProtos.AddressBook createJoeAndSue() {
+    static AddressBookProtos.AddressBook createAddressBookWithJoeAndSue() {
         AddressBookProtos.AddressBook.Builder builder = AddressBookProtos.AddressBook.newBuilder();
         builder
                 .setName("Joe and Sue's Address Book")
@@ -30,7 +30,7 @@ class ProtobufHelper {
         return builder.build();
     }
 
-    static AddressBookProtos.AddressBook createFrank() {
+    static AddressBookProtos.AddressBook createAddressBookWithFrank() {
         AddressBookProtos.AddressBook.Builder builder = AddressBookProtos.AddressBook.newBuilder();
         builder
                 .setName("Frank's Address Book")

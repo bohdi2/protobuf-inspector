@@ -16,26 +16,27 @@ public class ProtobufInspector<T> implements InspectorAssert {
 
     public ProtobufInspector(AuditTrail audit, List<T> protobufs) {
         //assert messages.size() > 0 : "Empty messages";
-        this.protobufs = new ArrayList<T>(protobufs);
+        this.protobufs = new ArrayList<>(protobufs);
         this.audit=audit;
     }
 
 
-    public ProtobufInspector<T> expectMessages(int n) {
+    // Test that there are 'n' protobuf messages.
+    public ProtobufInspector<T> expectMessageCount(int expectedSize) {
 
-        assertEquals(String.format("expectMessages(%d)", n),
-                     toClassString(),
-                     n,
-                     protobufs.size());
+        assertEquals(String.format("expectMessages(%d)", expectedSize),
+                toClassString(),
+                expectedSize,
+                protobufs.size());
         return this;
     }
 
 
 
 
-    public ProtobufInspector<T> nextMessage() {
+    public ProtobufInspector<T> nextProtobuf() {
         assertTrue("nextMessage ", protobufs.size() > 1);
-        return new ProtobufInspector<T>(audit, tail(protobufs));
+        return new ProtobufInspector<>(audit, tail(protobufs));
     }
 
     // assert there are no more messages in ProtobufInspector
@@ -49,7 +50,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
     // Return new ProtobufInspector containing only messages of type clazz
     public <C extends T> ProtobufInspector<C> filterType(Class<C> clazz) {
 
-        List<C> found = new ArrayList<C>();
+        List<C> found = new ArrayList<>();
 
         for (T protobuf : protobufs) {
             if (clazz.isInstance(protobuf))
@@ -57,7 +58,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
         }
 
         audit = audit.comment(String.format("filterType(%s) removed %d messages", clazz, protobufs.size() - found.size()));
-        return new ProtobufInspector<C>(audit, found);
+        return new ProtobufInspector<>(audit, found);
     }
 
 
@@ -77,7 +78,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
 
 
     public <V> ProtobufInspector<T> filter(Function<T, V> f, Predicate<V> p) {
-        return filter(new Field<T, V>("Foo", f, p));
+        return filter(new Field<>("Foo", f, p));
     }
 
     public <V> ProtobufInspector<T> filterEquals(Function<T, V> f, V expected) {
@@ -85,7 +86,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
     }
 
     public ProtobufInspector<T> filter(PiPredicate<T> p) {
-        List<T> found = new ArrayList<T>();
+        List<T> found = new ArrayList<>();
 
         for (T protobuf : protobufs) {
             if (p.test(this, protobuf))
@@ -93,7 +94,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
         }
 
         audit = audit.comment(String.format("filter(%s) removed %d messages", "xyzzy3", protobufs.size() - found.size()));
-        return new ProtobufInspector<T>(audit, found);
+        return new ProtobufInspector<>(audit, found);
     }
 
     @SafeVarargs
@@ -113,7 +114,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
 
 
     public <V> ProtobufInspector<T> expect(Function<T, V> f, Predicate<V> p) {
-        return expect(new Field<T, V>("Foo2", f, p));
+        return expect(new Field<>("Foo2", f, p));
     }
 
     public <V> ProtobufInspector<T> expectEquals(Function<T, V> f, V expected) {
@@ -189,7 +190,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
 
 
     private String toClassString() {
-        List<String> classes = new ArrayList<String>(protobufs.size());
+        List<String> classes = new ArrayList<>(protobufs.size());
         for (T m : protobufs)
             classes.add(m.getClass().getSimpleName());
 

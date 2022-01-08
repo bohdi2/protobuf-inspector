@@ -8,6 +8,7 @@ import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.bohdi.protobuf.inspector.AddressBookProtos.*;
 import static org.bohdi.protobuf.inspector.ExpectationHelper.*;
 import static org.bohdi.protobuf.inspector.ProtobufHelper.*;
 
@@ -18,36 +19,36 @@ public class ProtobufInspectorTest {
 
     @Test
     public void test_Simple_Lookups_With_Multiple_Messages() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
-        list.add(createFrank());
+        List<Message> addressBooks = new ArrayList<>();
+        addressBooks.add(createAddressBookWithJoeAndSue());
+        addressBooks.add(createAddressBookWithFrank());
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(addressBooks);
         inspector
-                .filterType(AddressBookProtos.AddressBook.class)
-                .expectType(AddressBookProtos.AddressBook.class)
-                .expectEquals(f->f.getName(), "Joe and Sue's Address Book")
-                .nextMessage()
-                .expectType(AddressBookProtos.AddressBook.class)
-                .expectEquals(f->f.getName(), "Frank's Address Book")
+                .filterType(AddressBook.class)
+                .expectType(AddressBook.class)
+                .expectEquals(AddressBook::getName, "Joe and Sue's Address Book")
+                .nextProtobuf()
+                .expectType(AddressBook.class)
+                .expectEquals(AddressBook::getName, "Frank's Address Book")
                 .expectEnd();
     }
 
 
     @Test
     public void test_Predicate_Lookups_With_Multiple_Messages() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
-        list.add(createFrank());
+        List<Message> addressBooks = new ArrayList<>();
+        addressBooks.add(createAddressBookWithJoeAndSue());
+        addressBooks.add(createAddressBookWithFrank());
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(addressBooks);
         inspector
-                .filterType(AddressBookProtos.AddressBook.class)
-                .expectType(AddressBookProtos.AddressBook.class)
-                .expect(f->f.getName(), v->v.equals("Joe and Sue's Address Book"))
-                .nextMessage()
-                .expectType(AddressBookProtos.AddressBook.class)
-                .expect(f->f.getName(), v->v.equals("Frank's Address Book"))
+                .filterType(AddressBook.class)
+                .expectType(AddressBook.class)
+                .expect(AddressBook::getName, v->v.equals("Joe and Sue's Address Book"))
+                .nextProtobuf()
+                .expectType(AddressBook.class)
+                .expect(AddressBook::getName, v->v.equals("Frank's Address Book"))
                 .expectEnd();
     }
 
@@ -55,67 +56,68 @@ public class ProtobufInspectorTest {
     public void test_Expect_Size_0() {
         List<Message> list = new ArrayList<>();
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
-        inspector.expectMessages(0);
+        inspector.expectMessageCount(0);
     }
 
     @Test
     public void test_Expect_Size_Not_0() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
-        list.add(createCar("Honda", 1999));
-        list.add(createCar("Honda", 2001));
-        list.add(createCar("Toyota", 1999));
+        List<Message> protobufMessages = new ArrayList<>();
+        protobufMessages.add(createAddressBookWithJoeAndSue());
+        protobufMessages.add(createCar("Honda", 1999));
+        protobufMessages.add(createCar("Honda", 2001));
+        protobufMessages.add(createCar("Toyota", 1999));
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
-        inspector.expectMessages(4);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(protobufMessages);
+        inspector.expectMessageCount(4);
     }
 
+
     @Test
-    public void test_FilterType_Size_0() {
-        List<Message> list = new ArrayList<Message>();
+    public void test_flitering_an_empty_list_by_type_has_no_effect() {
+        List<Message> list = new ArrayList<>();
 
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
-                .expectMessages(0)
+                .expectMessageCount(0)
                 .filterType(org.bohdi.protobuf.inspector.Car.Sedan.class)
-                .expectMessages(0);    }
+                .expectMessageCount(0);    }
 
     @Test
-    public void test_FilterType() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
-        list.add(createCar("Honda", 1999));
-        list.add(createCar("Honda", 2001));
-        list.add(createCar("Toyota", 1999));
+    public void test_filtering_by_type() {
+        List<Message> protobufs = new ArrayList<>();
+        protobufs.add(createAddressBookWithJoeAndSue());
+        protobufs.add(createCar("Honda", 1999));
+        protobufs.add(createCar("Honda", 2001));
+        protobufs.add(createCar("Toyota", 1999));
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(protobufs);
         inspector
-                .expectMessages(4)
+                .expectMessageCount(4)
                 .filterType(org.bohdi.protobuf.inspector.Car.Sedan.class)
-                .expectMessages(3);
+                .expectMessageCount(3);
 
     }
 
     @Test
     public void test_expectEquals() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
+        List<Message> list = new ArrayList<>();
+        list.add(createAddressBookWithJoeAndSue());
 
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
-                .filterType(AddressBookProtos.AddressBook.class)
-                .expectEquals(f->f.getName(), "Joe and Sue's Address Book")
+                .filterType(AddressBook.class)
+                .expectEquals(AddressBook::getName, "Joe and Sue's Address Book")
                 .expectEquals(m -> m.getPeople(0).getName(), "Joe")
                 .expectEquals(m -> m.getPeople(0).getId(), 567)
                 .expectEquals(m -> m.getPeople(0).getPhones(0).getNumber(), "123456")
-                .expectEquals(m -> m.getPeople(0).getPhones(0).getType(), AddressBookProtos.Person.PhoneType.HOME)
+                .expectEquals(m -> m.getPeople(0).getPhones(0).getType(), Person.PhoneType.HOME)
 
                 .expectEquals(m -> m.getPeople(1).getName(), "Sue")
                 .expectEquals(m -> m.getPeople(1).getId(), 890)
                 .expectEquals(m -> m.getPeople(1).getPhones(0).getNumber(), "123")
-                .expectEquals(m -> m.getPeople(1).getPhones(0).getType(), AddressBookProtos.Person.PhoneType.MOBILE)
+                .expectEquals(m -> m.getPeople(1).getPhones(0).getType(), Person.PhoneType.MOBILE)
                 .expectEquals(m -> m.getPeople(1).getPhones(1).getNumber(), "456")
-                .expectEquals(m -> m.getPeople(1).getPhones(1).getType(), AddressBookProtos.Person.PhoneType.WORK)
+                .expectEquals(m -> m.getPeople(1).getPhones(1).getType(), Person.PhoneType.WORK)
                 .expectEnd();
     }
 
@@ -125,8 +127,8 @@ public class ProtobufInspectorTest {
 
     @Test
     public void test_filter() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
+        List<Message> list = new ArrayList<>();
+        list.add(createAddressBookWithJoeAndSue());
         list.add(createCar("Honda", 1999));
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
@@ -138,21 +140,21 @@ public class ProtobufInspectorTest {
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 // 4 messages in total
-                .expectMessages(4)
+                .expectMessageCount(4)
                 .filterType(Car.Sedan.class)
 
                 // but just 3 cars
-                .expectMessages(3)
-                .filterEquals(m->m.getMake(), "Honda")
+                .expectMessageCount(3)
+                .filterEquals(Car.Sedan::getMake, "Honda")
 
                 // and just 2 Hondas
-                .expectMessages(2)
+                .expectMessageCount(2)
                 .expectType(Car.Sedan.class)
-                .expectEquals(m->m.getYear(), 1999)
+                .expectEquals(Car.Sedan::getYear, 1999)
 
-                .nextMessage()
+                .nextProtobuf()
                 .expectType(Car.Sedan.class)
-                .expectEquals(m->m.getYear(), 2001)
+                .expectEquals(Car.Sedan::getYear, 2001)
 
                 .expectEnd();
 
@@ -160,8 +162,8 @@ public class ProtobufInspectorTest {
 
     @Test
     public void test_filter_predicates() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
+        List<Message> list = new ArrayList<>();
+        list.add(createAddressBookWithJoeAndSue());
         list.add(createCar("Honda", 1999));
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
@@ -174,17 +176,17 @@ public class ProtobufInspectorTest {
 
         inspector
                 // 4 messages in total
-                .expectMessages(4)
+                .expectMessageCount(4)
                 .filterType(Car.Sedan.class)
                 .filter(is1999)
 
-                .expectMessages(2)
+                .expectMessageCount(2)
                 .expectType(Car.Sedan.class)
-                .expectEquals(m->m.getMake(), "Honda")
-                .nextMessage()
+                .expectEquals(Car.Sedan::getMake, "Honda")
+                .nextProtobuf()
 
                 .expectType(Car.Sedan.class)
-                .expectEquals(m->m.getMake(), "Toyota")
+                .expectEquals(Car.Sedan::getMake, "Toyota")
                 .expectEnd()
         ;
     }
@@ -193,8 +195,8 @@ public class ProtobufInspectorTest {
 
     @Test
     public void test_multiple_filter() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
+        List<Message> list = new ArrayList<>();
+        list.add(createAddressBookWithJoeAndSue());
         list.add(createCar("Honda", 1999));
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
@@ -203,23 +205,23 @@ public class ProtobufInspectorTest {
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
 
         inspector
-                .expectMessages(4)
+                .expectMessageCount(4)
 
                 .filterType(Car.Sedan.class)
-                .filterEquals(m->m.getMake(), "Honda")
-                .filterEquals(m->m.getYear(), 2001)
+                .filterEquals(Car.Sedan::getMake, "Honda")
+                .filterEquals(Car.Sedan::getYear, 2001)
 
-                .expectMessages(1)
+                .expectMessageCount(1)
                 .expectType(Car.Sedan.class)
-                .expectEquals(m->m.getMake(), "Honda")
-                .expectEquals(m -> m.getYear(), 2001)
+                .expectEquals(Car.Sedan::getMake, "Honda")
+                .expectEquals(Car.Sedan::getYear, 2001)
                 .expectEnd();
     }
 
     @Test
     public void test_filter_with_multiple_predicates() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createJoeAndSue());
+        List<Message> list = new ArrayList<>();
+        list.add(createAddressBookWithJoeAndSue());
         list.add(createCar("Honda", 1999));
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
@@ -227,14 +229,14 @@ public class ProtobufInspectorTest {
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
 
         inspector
-                .expectMessages(4)
+                .expectMessageCount(4)
                 .filterType(Car.Sedan.class)
                 .filter(isHonda, is2001)
 
-                .expectMessages(1)
+                .expectMessageCount(1)
                 .expectType(Car.Sedan.class)
-                .expectEquals(m->m.getMake(), "Honda")
-                .expectEquals(m -> m.getYear(), 2001)
+                .expectEquals(Car.Sedan::getMake, "Honda")
+                .expectEquals(Car.Sedan::getYear, 2001)
                 .expectEnd();
     }
 

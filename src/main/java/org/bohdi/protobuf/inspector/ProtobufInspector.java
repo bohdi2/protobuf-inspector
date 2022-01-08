@@ -8,13 +8,13 @@ import java.util.function.Predicate;
 
 public class ProtobufInspector<T> implements InspectorAssert {
     private final List<T> protobufs;
-    private Audit audit;
+    private AuditTrail audit;
 
     public ProtobufInspector(List<T> protobufs) {
-        this(new Audit(), protobufs);
+        this(new AuditTrail(), protobufs);
     }
 
-    public ProtobufInspector(Audit audit, List<T> protobufs) {
+    public ProtobufInspector(AuditTrail audit, List<T> protobufs) {
         //assert messages.size() > 0 : "Empty messages";
         this.protobufs = new ArrayList<T>(protobufs);
         this.audit=audit;
@@ -256,7 +256,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
         audit = audit.success(comment);
     }
 
-    public Audit getAudit() {
+    public AuditTrail getAudit() {
         return audit;
     }
 

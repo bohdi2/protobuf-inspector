@@ -5,41 +5,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Used by ProtobufInspector. Is an audit trail of protobuf messages and expectations.
-// This can be helpful debugging application or ProtobufInspector issues.
+// This can help in debugging application or ProtobufInspector issues.
 
-class Audit {
+class AuditTrail {
     final int errors;
     final int tests;
     final List<String> trace;
 
-    Audit() {
+    AuditTrail() {
         errors = 0;
         tests = 0;
         trace = new ArrayList<String>();
     }
 
-    Audit(int errors, int asserts, List<String> trace) {
+    AuditTrail(int errors, int asserts, List<String> trace) {
         this.errors = errors;
         this.tests = asserts;
         this.trace = new ArrayList<String>(trace);
     }
 
-    Audit success(String s) {
+    AuditTrail success(String s) {
         List newTrace = new ArrayList<String>(trace);
         newTrace.add("success: " + s);
-        return new Audit(errors, tests +1, newTrace);
+        return new AuditTrail(errors, tests +1, newTrace);
     }
 
-    Audit fail(String s) {
+    AuditTrail fail(String s) {
         List newTrace = new ArrayList<String>(trace);
         newTrace.add("fail: " + s);
-        return new Audit(errors+1, tests +1, newTrace);
+        return new AuditTrail(errors+1, tests +1, newTrace);
     }
 
-    Audit comment(String s) {
+    AuditTrail comment(String s) {
         List newTrace = new ArrayList<String>(trace);
         newTrace.add("comment: " + s);
-        return new Audit(errors, tests, newTrace);
+        return new AuditTrail(errors, tests, newTrace);
     }
 
     @Override

@@ -5,7 +5,4 @@ I used it in an acceptence framework which sent and
 received complicated protobuf messages to a server and
 I needed to test the messages received.
 
-The protobuf plugin seems to be out of data and this
-does not build.
-
-There is a security issue with the version of protobuf I am using. 
+Need documentation

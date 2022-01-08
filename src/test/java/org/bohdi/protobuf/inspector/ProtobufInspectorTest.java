@@ -40,7 +40,7 @@ public class ProtobufInspectorTest {
         list.add(createJoeAndSue());
         list.add(createFrank());
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 .filterType(AddressBookProtos.AddressBook.class)
                 .expectType(AddressBookProtos.AddressBook.class)
@@ -53,8 +53,8 @@ public class ProtobufInspectorTest {
 
     @Test
     public void test_Expect_Size_0() {
-        List<Message> list = new ArrayList<Message>();
-        ProtobufInspector inspector = new ProtobufInspector(list);
+        List<Message> list = new ArrayList<>();
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector.expectMessages(0);
     }
 
@@ -66,7 +66,7 @@ public class ProtobufInspectorTest {
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
 
-        ProtobufInspector inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector.expectMessages(4);
     }
 
@@ -74,7 +74,7 @@ public class ProtobufInspectorTest {
     public void test_FilterType_Size_0() {
         List<Message> list = new ArrayList<Message>();
 
-        ProtobufInspector inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 .expectMessages(0)
                 .filterType(org.bohdi.protobuf.inspector.Car.Sedan.class)
@@ -88,7 +88,7 @@ public class ProtobufInspectorTest {
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
 
-        ProtobufInspector inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 .expectMessages(4)
                 .filterType(org.bohdi.protobuf.inspector.Car.Sedan.class)
@@ -101,7 +101,7 @@ public class ProtobufInspectorTest {
         List<Message> list = new ArrayList<Message>();
         list.add(createJoeAndSue());
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 .filterType(AddressBookProtos.AddressBook.class)
                 .expectEquals(f->f.getName(), "Joe and Sue's Address Book")
@@ -135,7 +135,7 @@ public class ProtobufInspectorTest {
         // We can look at the a set of messages in different ways.
         // By using a filter we can create subsets of messages.
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 // 4 messages in total
                 .expectMessages(4)
@@ -170,7 +170,7 @@ public class ProtobufInspectorTest {
         // We can look at the a set of messages in different ways.
         // By using a filter we can create subsets of messages.
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
 
         inspector
                 // 4 messages in total
@@ -199,7 +199,8 @@ public class ProtobufInspectorTest {
         list.add(createCar("Honda", 2001));
         list.add(createCar("Toyota", 1999));
 
-        ProtobufInspector<Car.Sedan> inspector = new ProtobufInspector(list);
+        // Had been <car.sedan> for T
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
 
         inspector
                 .expectMessages(4)
@@ -238,18 +239,19 @@ public class ProtobufInspectorTest {
     }
 
 
+    // ToDo: Does not compile. Why?
     //@Test
-    public void test_expectField_With_Bad_Value() {
-        List<Message> list = new ArrayList<Message>();
-        list.add(createCar("Honda", 2007));
-
-        thrown.expect(ProtobufInspectorException.class);
-        thrown.expectMessage("fail: xxx2 <Hondo> != <Honda>");
-
-        ProtobufInspector<Car.Sedan> inspector = new ProtobufInspector(list);
-        inspector
-                .expectEquals(m->m.getMake(), "Hondo");
-    }
+//    public void test_expectField_With_Bad_Value() {
+//        List<Message> list = new ArrayList<Message>();
+//        list.add(createCar("Honda", 2007));
+//
+//        thrown.expect(ProtobufInspectorException.class);
+//        thrown.expectMessage("fail: xxx2 <Hondo> != <Honda>");
+//
+//        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
+//        inspector
+//                .expectEquals(m->m.getMake(), "Hondo");
+//    }
 
 
 

@@ -6,41 +6,42 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 
-public class ProtobufInspector<T> {
-    private final List<T> protobufs;
-    private AuditTrail audit;
+public class ProtobufInspector<MessageT> {
+    private final List<MessageT> protobufs;  // "protobufs" and "messages" are used interchangeably
+    private AuditTrail auditTrail;
 
-    public ProtobufInspector(List<T> protobufs) {
+    public ProtobufInspector(List<MessageT> protobufs) {
         this(new AuditTrail(), protobufs);
     }
 
-    public ProtobufInspector(AuditTrail audit, List<T> protobufs) {
-        //assert messages.size() > 0 : "Empty messages";
+    public ProtobufInspector(AuditTrail auditTrail, List<MessageT> protobufs) {
         this.protobufs = new ArrayList<>(protobufs);
-        this.audit=audit;
+        this.auditTrail = auditTrail;
     }
 
-
     // Test that there are 'n' protobuf messages.
-    public ProtobufInspector<T> expectMessageCount(int expectedSize) {
+    public ProtobufInspector<MessageT> expectMessageCount(int expectedSize) {
 
         assertEquals(String.format("expectMessages(%d)", expectedSize),
                 toClassString(),
                 expectedSize,
                 protobufs.size());
+
         return this;
     }
 
 
+    // Test that there is another protobuffer in the list of messages and if there
+    // is then create a new ProtobufInspector for it. This is how tests for different
+    // messages are tied together.
 
-
-    public ProtobufInspector<T> nextProtobuf() {
+    public ProtobufInspector<MessageT> nextProtobuf() {
         assertTrue("nextMessage ", protobufs.size() > 1);
-        return new ProtobufInspector<>(audit, tail(protobufs));
+        return new ProtobufInspector<>(auditTrail, tail(protobufs));
     }
 
     // assert there are no more messages in ProtobufInspector
-    public ProtobufInspector<T> expectEnd() {
+    public ProtobufInspector<MessageT> expectNoMoreProtobufs() {
         assertEquals(protobufs.toString(), "bad", protobufs.size(), 1);
         return this;
     }
@@ -48,23 +49,23 @@ public class ProtobufInspector<T> {
 
 
     // Return new ProtobufInspector containing only messages of type clazz
-    public <C extends T> ProtobufInspector<C> filterType(Class<C> clazz) {
+    public <C extends MessageT> ProtobufInspector<C> filterByProtobufType(Class<C> clazz) {
 
         List<C> found = new ArrayList<>();
 
-        for (T protobuf : protobufs) {
+        for (MessageT protobuf : protobufs) {
             if (clazz.isInstance(protobuf))
                 found.add((C) protobuf);
         }
 
-        audit = audit.comment(String.format("filterType(%s) removed %d messages", clazz, protobufs.size() - found.size()));
-        return new ProtobufInspector<>(audit, found);
+        auditTrail = auditTrail.comment(String.format("filterType(%s) removed %d messages", clazz, protobufs.size() - found.size()));
+        return new ProtobufInspector<>(auditTrail, found);
     }
 
 
 
     // assert that current message is of type clazz
-    public ProtobufInspector<T> expectType(Class clazz) {
+    public ProtobufInspector<MessageT> expectProtobufOfType(Class clazz) {
         String name = String.format("expectType(%s)", clazz.getSimpleName());
 
         assertEquals(name,
@@ -77,60 +78,60 @@ public class ProtobufInspector<T> {
 
 
 
-    public <V> ProtobufInspector<T> filter(Function<T, V> f, Predicate<V> p) {
-        return filter(new FieldPredicate<>("Foo", f, p));
+    public <FieldT> ProtobufInspector<MessageT> filter(Function<MessageT, FieldT> fieldExtractor, Predicate<FieldT> p) {
+        return filter(new FieldPredicate<>("Foo", fieldExtractor, p));
     }
 
-    public <V> ProtobufInspector<T> filterEquals(Function<T, V> f, V expected) {
-        return filter(f, v->v.equals(expected));
+    public <FieldT> ProtobufInspector<MessageT> filterEquals(Function<MessageT, FieldT> fieldExtractor, FieldT expectedValue) {
+        return filter(fieldExtractor, v->v.equals(expectedValue));
     }
 
-    public ProtobufInspector<T> filter(PiPredicate<T> p) {
-        List<T> found = new ArrayList<>();
+    public ProtobufInspector<MessageT> filter(PiPredicate<MessageT> p) {
+        List<MessageT> found = new ArrayList<>();
 
-        for (T protobuf : protobufs) {
+        for (MessageT protobuf : protobufs) {
             if (p.test(this, protobuf))
                 found.add(protobuf);
         }
 
-        audit = audit.comment(String.format("filter(%s) removed %d messages", "xyzzy3", protobufs.size() - found.size()));
-        return new ProtobufInspector<>(audit, found);
+        auditTrail = auditTrail.comment(String.format("filter(%s) removed %d messages", "xyzzy3", protobufs.size() - found.size()));
+        return new ProtobufInspector<>(auditTrail, found);
     }
 
     @SafeVarargs
-    public final ProtobufInspector<T> filter(PiPredicate<T>... predicates) {
-        ProtobufInspector<T> pi = this;
+    public final ProtobufInspector<MessageT> filter(PiPredicate<MessageT>... predicates) {
+        ProtobufInspector<MessageT> pi = this;
 
-        for (PiPredicate<T> predicate : predicates) {
+        for (PiPredicate<MessageT> predicate : predicates) {
             pi = pi.filter(predicate);
         }
         return pi;
     }
 
 
-    public boolean test(PiPredicate<T> p) {
+    public boolean test(PiPredicate<MessageT> p) {
         return p.test(this, protobufs.get(0));
     }
 
 
-    public <V> ProtobufInspector<T> expect(Function<T, V> f, Predicate<V> p) {
-        return expect(new FieldPredicate<>("Foo2", f, p));
+    public <FieldT> ProtobufInspector<MessageT> expect(Function<MessageT, FieldT> fieldExtractor, Predicate<FieldT> p) {
+        return expect(new FieldPredicate<>("Foo2", fieldExtractor, p));
     }
 
-    public <V> ProtobufInspector<T> expectEquals(Function<T, V> f, V expected) {
-        return expect(f, v->v.equals(expected));
+    public <FieldT> ProtobufInspector<MessageT> expectEquals(Function<MessageT, FieldT> fieldExtractor, FieldT expected) {
+        return expect(fieldExtractor, v->v.equals(expected));
     }
 
-    public ProtobufInspector<T> expect(PiPredicate<T> p) {
+    public ProtobufInspector<MessageT> expect(PiPredicate<MessageT> p) {
         assertTrue("X", p.test(this, protobufs.get(0)));
         return this;
 
     }
 
-    public ProtobufInspector<T> expect(PiPredicate<T>... predicates) {
-        ProtobufInspector<T> pi = this;
+    public ProtobufInspector<MessageT> expect(PiPredicate<MessageT>... predicates) {
+        ProtobufInspector<MessageT> pi = this;
 
-        for (PiPredicate<T> predicate : predicates) {
+        for (PiPredicate<MessageT> predicate : predicates) {
             pi = pi.expect(predicate);
         }
         return pi;
@@ -163,12 +164,12 @@ public class ProtobufInspector<T> {
     }
 
     // Add a comment to audit trail
-    public ProtobufInspector<T> comment(String s) {
-        audit = audit.comment(s);
+    public ProtobufInspector<MessageT> comment(String s) {
+        auditTrail = auditTrail.comment(s);
         return this;
     }
 
-    public ProtobufInspector<T> dump(String comment) {
+    public ProtobufInspector<MessageT> dump(String comment) {
         if (protobufs.isEmpty())
             System.err.format("Message[%s]: Empty%n", comment);
         else
@@ -177,9 +178,9 @@ public class ProtobufInspector<T> {
         return this;
     }
 
-    public ProtobufInspector<T> dumpAll(String comment) {
+    public ProtobufInspector<MessageT> dumpAll(String comment) {
         int index = 0;
-        for (T protobuf : protobufs) {
+        for (MessageT protobuf : protobufs) {
             System.err.format("Message[%d](%s): %s%n", index++, comment, protobuf);
         }
 
@@ -188,10 +189,10 @@ public class ProtobufInspector<T> {
 
 
 
-
+    // Get the class name of each Protobuf in the inspector.
     private String toClassString() {
         List<String> classes = new ArrayList<>(protobufs.size());
-        for (T m : protobufs)
+        for (MessageT m : protobufs)
             classes.add(m.getClass().getSimpleName());
 
         return "[" + String.join(", ", classes) + "]";
@@ -207,58 +208,58 @@ public class ProtobufInspector<T> {
             // Yes, are the values the same?
             if (expected.equals(actual)) {
                 //audit = audit.success(comment + "(" + expected + ") ok ");
-                audit = audit.success(String.format("%s // %s", name, comment));
+                auditTrail = auditTrail.success(String.format("%s // %s", name, comment));
             }
             else {
                 //audit = audit.fail(badComment + " expected2: " + expected + ", actual: " + actual);
-                audit = audit.fail(String.format(name + " <%s> != <%s>", expected, actual));
-                throw new ProtobufInspectorException(audit);
+                auditTrail = auditTrail.fail(String.format(name + " <%s> != <%s>", expected, actual));
+                throw new ProtobufInspectorException(auditTrail);
             }
         }
         else {
-            audit = audit.fail(String.format(name + "class %s != %s", expected.getClass(), actual.getClass()));
-            throw new ProtobufInspectorException(audit);
+            auditTrail = auditTrail.fail(String.format(name + "class %s != %s", expected.getClass(), actual.getClass()));
+            throw new ProtobufInspectorException(auditTrail);
         }
     }
 
 
     public void assertNotNull(String comment, Object actual) {
         if (null != actual)
-            audit = audit.success(comment);
+            auditTrail = auditTrail.success(comment);
         else {
-            audit = audit.fail(comment);
-            throw new ProtobufInspectorException(audit);
+            auditTrail = auditTrail.fail(comment);
+            throw new ProtobufInspectorException(auditTrail);
         }
     }
 
     public void assertFalse(String comment, boolean actual) {
         if (!actual)
-            audit = audit.success(comment);
+            auditTrail = auditTrail.success(comment);
         else {
-            audit = audit.fail(comment);
-            throw new ProtobufInspectorException(audit);
+            auditTrail = auditTrail.fail(comment);
+            throw new ProtobufInspectorException(auditTrail);
         }
     }
 
     public void assertTrue(String comment, boolean actual) {
         if (actual)
-            audit = audit.success(comment);
+            auditTrail = auditTrail.success(comment);
         else {
-            audit = audit.fail(comment);
-            throw new ProtobufInspectorException(audit);
+            auditTrail = auditTrail.fail(comment);
+            throw new ProtobufInspectorException(auditTrail);
         }
     }
 
     public void recoredSuccess(String comment) {
-        audit = audit.success(comment);
+        auditTrail = auditTrail.success(comment);
     }
 
     public void recordFailure(String comment) {
-        audit = audit.success(comment);
+        auditTrail = auditTrail.success(comment);
     }
 
-    public AuditTrail getAudit() {
-        return audit;
+    public AuditTrail getAuditTrail() {
+        return auditTrail;
     }
 
 }

@@ -25,13 +25,13 @@ public class ProtobufInspectorTest {
 
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(addressBooks);
         inspector
-                .filterType(AddressBook.class)
-                .expectType(AddressBook.class)
+                .filterByProtobufType(AddressBook.class)
+                .expectProtobufOfType(AddressBook.class)
                 .expectEquals(AddressBook::getName, "Joe and Sue's Address Book")
                 .nextProtobuf()
-                .expectType(AddressBook.class)
+                .expectProtobufOfType(AddressBook.class)
                 .expectEquals(AddressBook::getName, "Frank's Address Book")
-                .expectEnd();
+                .expectNoMoreProtobufs();
     }
 
 
@@ -43,13 +43,13 @@ public class ProtobufInspectorTest {
 
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(addressBooks);
         inspector
-                .filterType(AddressBook.class)
-                .expectType(AddressBook.class)
+                .filterByProtobufType(AddressBook.class)
+                .expectProtobufOfType(AddressBook.class)
                 .expect(AddressBook::getName, v->v.equals("Joe and Sue's Address Book"))
                 .nextProtobuf()
-                .expectType(AddressBook.class)
+                .expectProtobufOfType(AddressBook.class)
                 .expect(AddressBook::getName, v->v.equals("Frank's Address Book"))
-                .expectEnd();
+                .expectNoMoreProtobufs();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ProtobufInspectorTest {
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
         inspector
                 .expectMessageCount(0)
-                .filterType(org.bohdi.protobuf.inspector.Car.Sedan.class)
+                .filterByProtobufType(org.bohdi.protobuf.inspector.Car.Sedan.class)
                 .expectMessageCount(0);    }
 
     @Test
@@ -93,7 +93,7 @@ public class ProtobufInspectorTest {
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(protobufs);
         inspector
                 .expectMessageCount(4)
-                .filterType(org.bohdi.protobuf.inspector.Car.Sedan.class)
+                .filterByProtobufType(org.bohdi.protobuf.inspector.Car.Sedan.class)
                 .expectMessageCount(3);
 
     }
@@ -105,7 +105,7 @@ public class ProtobufInspectorTest {
 
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(addressBooks);
         inspector
-                .filterType(AddressBook.class)
+                .filterByProtobufType(AddressBook.class)
                 .expectEquals(AddressBook::getName, "Joe and Sue's Address Book")
                 .expectEquals(m -> m.getPeople(0).getName(), "Joe")
                 .expectEquals(m -> m.getPeople(0).getId(), 567)
@@ -118,7 +118,7 @@ public class ProtobufInspectorTest {
                 .expectEquals(m -> m.getPeople(1).getPhones(0).getType(), Person.PhoneType.MOBILE)
                 .expectEquals(m -> m.getPeople(1).getPhones(1).getNumber(), "456")
                 .expectEquals(m -> m.getPeople(1).getPhones(1).getType(), Person.PhoneType.WORK)
-                .expectEnd();
+                .expectNoMoreProtobufs();
     }
 
 
@@ -141,7 +141,7 @@ public class ProtobufInspectorTest {
         inspector
                 // 4 messages in total
                 .expectMessageCount(4)
-                .filterType(Car.Sedan.class)
+                .filterByProtobufType(Car.Sedan.class)
 
                 // but just 3 cars
                 .expectMessageCount(3)
@@ -149,14 +149,14 @@ public class ProtobufInspectorTest {
 
                 // and just 2 Hondas
                 .expectMessageCount(2)
-                .expectType(Car.Sedan.class)
+                .expectProtobufOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getYear, 1999)
 
                 .nextProtobuf()
-                .expectType(Car.Sedan.class)
+                .expectProtobufOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getYear, 2001)
 
-                .expectEnd();
+                .expectNoMoreProtobufs();
 
     }
 
@@ -177,17 +177,17 @@ public class ProtobufInspectorTest {
         inspector
                 // 4 messages in total
                 .expectMessageCount(4)
-                .filterType(Car.Sedan.class)
+                .filterByProtobufType(Car.Sedan.class)
                 .filter(is1999)
 
                 .expectMessageCount(2)
-                .expectType(Car.Sedan.class)
+                .expectProtobufOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getMake, "Honda")
                 .nextProtobuf()
 
-                .expectType(Car.Sedan.class)
+                .expectProtobufOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getMake, "Toyota")
-                .expectEnd()
+                .expectNoMoreProtobufs()
         ;
     }
 
@@ -207,15 +207,15 @@ public class ProtobufInspectorTest {
         inspector
                 .expectMessageCount(4)
 
-                .filterType(Car.Sedan.class)
+                .filterByProtobufType(Car.Sedan.class)
                 .filterEquals(Car.Sedan::getMake, "Honda")
                 .filterEquals(Car.Sedan::getYear, 2001)
 
                 .expectMessageCount(1)
-                .expectType(Car.Sedan.class)
+                .expectProtobufOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getMake, "Honda")
                 .expectEquals(Car.Sedan::getYear, 2001)
-                .expectEnd();
+                .expectNoMoreProtobufs();
     }
 
     @Test
@@ -230,14 +230,14 @@ public class ProtobufInspectorTest {
 
         inspector
                 .expectMessageCount(4)
-                .filterType(Car.Sedan.class)
+                .filterByProtobufType(Car.Sedan.class)
                 .filter(isHonda, is2001)
 
                 .expectMessageCount(1)
-                .expectType(Car.Sedan.class)
+                .expectProtobufOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getMake, "Honda")
                 .expectEquals(Car.Sedan::getYear, 2001)
-                .expectEnd();
+                .expectNoMoreProtobufs();
     }
 
 

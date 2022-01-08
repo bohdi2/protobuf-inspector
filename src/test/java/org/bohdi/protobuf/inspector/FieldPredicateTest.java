@@ -30,7 +30,7 @@ public class FieldPredicateTest {
         assertTrue("Honda", pi.test(fs));
         assertTrue("1999", pi.test(fi));
 
-        assertEquals(list("success: Make == Honda", "success: Year == 1999"), pi.getAudit().trace);
+        assertEquals(list("success: Make == Honda", "success: Year == 1999"), pi.getAuditTrail().trace);
     }
 
     @Test

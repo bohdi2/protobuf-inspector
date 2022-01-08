@@ -100,10 +100,10 @@ public class ProtobufInspectorTest {
 
     @Test
     public void test_expectEquals() {
-        List<Message> list = new ArrayList<>();
-        list.add(createAddressBookWithJoeAndSue());
+        List<Message> addressBooks = new ArrayList<>();
+        addressBooks.add(createAddressBookWithJoeAndSue());
 
-        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(addressBooks);
         inspector
                 .filterType(AddressBook.class)
                 .expectEquals(AddressBook::getName, "Joe and Sue's Address Book")

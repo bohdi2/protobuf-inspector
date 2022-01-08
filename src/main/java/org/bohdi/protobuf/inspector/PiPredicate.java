@@ -1,6 +1,6 @@
 package org.bohdi.protobuf.inspector;
 
 
-public interface PiPredicate<T> {
-    boolean test(ProtobufInspector<T> pi, T t);
+public interface PiPredicate<MessageT> {
+    boolean test(ProtobufInspector<MessageT> pi, MessageT message);
 }

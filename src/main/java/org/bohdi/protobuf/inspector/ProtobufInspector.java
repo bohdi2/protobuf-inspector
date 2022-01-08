@@ -78,7 +78,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
 
 
     public <V> ProtobufInspector<T> filter(Function<T, V> f, Predicate<V> p) {
-        return filter(new Field<>("Foo", f, p));
+        return filter(new FieldPredicate<>("Foo", f, p));
     }
 
     public <V> ProtobufInspector<T> filterEquals(Function<T, V> f, V expected) {
@@ -114,7 +114,7 @@ public class ProtobufInspector<T> implements InspectorAssert {
 
 
     public <V> ProtobufInspector<T> expect(Function<T, V> f, Predicate<V> p) {
-        return expect(new Field<>("Foo2", f, p));
+        return expect(new FieldPredicate<>("Foo2", f, p));
     }
 
     public <V> ProtobufInspector<T> expectEquals(Function<T, V> f, V expected) {

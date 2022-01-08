@@ -12,7 +12,7 @@ import static org.bohdi.protobuf.inspector.ProtobufHelper.createCar;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class FieldTest {
+public class FieldPredicateTest {
     @Test
     public void test_Field() {
 
@@ -23,8 +23,9 @@ public class FieldTest {
 
         ProtobufInspector<Car.Sedan> pi = new ProtobufInspector<>(list);
 
-        Field<Car.Sedan, String> fs = new Field<>("Make == Honda", Car.Sedan::getMake, v->v.equals("Honda"));
-        Field<Car.Sedan, Integer> fi = new Field<>("Year == 1999", Car.Sedan::getYear, v->v == 1999);
+        FieldPredicate<Car.Sedan, String> fxs = new FieldPredicate<>("Make == Honda", x -> x.getMake() , v->v.equals("Honda"));
+        FieldPredicate<Car.Sedan, String> fs = new FieldPredicate<>("Make == Honda", Car.Sedan::getMake, v->v.equals("Honda"));
+        FieldPredicate<Car.Sedan, Integer> fi = new FieldPredicate<>("Year == 1999", Car.Sedan::getYear, v->v == 1999);
 
         assertTrue("Honda", pi.test(fs));
         assertTrue("1999", pi.test(fi));

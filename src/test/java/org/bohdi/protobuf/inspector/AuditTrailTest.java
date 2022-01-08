@@ -12,8 +12,8 @@ public class AuditTrailTest {
         auditTrail = auditTrail.success("One");
         auditTrail = auditTrail.success("Two");
 
-        assertEquals("tests", 2, auditTrail.tests);
-        assertEquals("errors", 0, auditTrail.errors);
+        assertEquals("tests", 2, auditTrail.numberOfTests);
+        assertEquals("errors", 0, auditTrail.numberOfErrors);
 
         assertTrue(auditTrail.toString().contains("One"));
         assertTrue(auditTrail.toString().contains("Two"));

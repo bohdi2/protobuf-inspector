@@ -90,7 +90,7 @@ public class ProtobufInspector<MessageT> {
         List<MessageT> found = new ArrayList<>();
 
         for (MessageT protobuf : protobufs) {
-            if (p.test(this, protobuf))
+            if (p.test(this, this.auditTrail, protobuf))
                 found.add(protobuf);
         }
 
@@ -110,7 +110,7 @@ public class ProtobufInspector<MessageT> {
 
 
     public boolean testField(PiPredicate<MessageT> p) {
-        if (p.test(this, protobufs.get(0))) {
+        if (p.test(this, this.auditTrail, protobufs.get(0))) {
             //this.recoredSuccess("CJH recordSuccess");
             return true;
         }
@@ -130,7 +130,7 @@ public class ProtobufInspector<MessageT> {
     }
 
     private ProtobufInspector<MessageT> expect(PiPredicate<MessageT> p) {
-        assertTrue("expect", p.test(this, protobufs.get(0)));
+        assertTrue("expect", p.test(this, this.auditTrail, protobufs.get(0)));
         return this;
 
     }
@@ -262,8 +262,7 @@ public class ProtobufInspector<MessageT> {
     }
 
     public void recordFailure(String comment) {
-        System.out.println("CJH this seems wrong");
-        auditTrail = auditTrail.success(comment);
+        auditTrail = auditTrail.fail(comment);
     }
 
     public AuditTrail getAuditTrail() {

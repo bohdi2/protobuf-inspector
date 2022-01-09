@@ -19,14 +19,14 @@ class ExpectationHelper {
             this.makePredicate = makePredicate;
             this.yearPredicate = yearPredicate;
         }
-        public boolean test(ProtobufInspector<Car.Sedan> auditor, Car.Sedan protobuf) {
+        public boolean test(ProtobufInspector<Car.Sedan> auditor, AuditTrail auditTrail, Car.Sedan protobuf) {
             auditor.comment("IsSedan");
-            boolean result = makePredicate.test(auditor, protobuf) && yearPredicate.test(auditor, protobuf);
+            boolean result = makePredicate.test(auditor, auditTrail, protobuf) && yearPredicate.test(auditor, auditTrail, protobuf);
             if (result) {
-                auditor.recordSuccess("IsSedan: Good");
+                auditTrail.success("IsSedan: Good");
             }
             else {
-                auditor.recordFailure("IsSedan: No good");
+                auditTrail.fail("IsSedan: No good");
             }
             return result;
         }

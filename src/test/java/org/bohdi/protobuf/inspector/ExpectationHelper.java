@@ -12,16 +12,16 @@ class ExpectationHelper {
     static final IsSedan isToyota1999 = new IsSedan(isToyota, is1999);
 
     static class IsSedan implements PiPredicate<Car.Sedan> {
-        private final FieldPredicate make;
-        private final FieldPredicate year;
+        private final FieldPredicate makePredicate;
+        private final FieldPredicate yearPredicate;
 
-        public IsSedan(FieldPredicate make, FieldPredicate year) {
-            this.make = make;
-            this.year = year;
+        public IsSedan(FieldPredicate makePredicate, FieldPredicate yearPredicate) {
+            this.makePredicate = makePredicate;
+            this.yearPredicate = yearPredicate;
         }
         public boolean test(ProtobufInspector<Car.Sedan> auditor, Car.Sedan protobuf) {
             auditor.comment("IsSedan");
-            boolean result = make.test(auditor, protobuf) && year.test(auditor, protobuf);
+            boolean result = makePredicate.test(auditor, protobuf) && yearPredicate.test(auditor, protobuf);
             if (result) {
                 auditor.recordSuccess("IsSedan: Good");
             }
@@ -29,11 +29,10 @@ class ExpectationHelper {
                 auditor.recordFailure("IsSedan: No good");
             }
             return result;
-
         }
 
         public String toString() {
-            return String.format("IsSedan(%s, %s", make, year);
+            return String.format("IsSedan(%s, %s", makePredicate, yearPredicate);
         }
     }
 

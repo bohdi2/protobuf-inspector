@@ -23,7 +23,6 @@ public class FieldPredicateTest {
 
         ProtobufInspector<Car.Sedan> pi = new ProtobufInspector<>(list);
 
-        FieldPredicate<Car.Sedan, String> fxs = new FieldPredicate<>("Make == Honda", x -> x.getMake() , v->v.equals("Honda"));
         FieldPredicate<Car.Sedan, String> fs = new FieldPredicate<>("Make == Honda", Car.Sedan::getMake, v->v.equals("Honda"));
         FieldPredicate<Car.Sedan, Integer> fi = new FieldPredicate<>("Year == 1999", Car.Sedan::getYear, v->v == 1999);
 
@@ -43,8 +42,8 @@ public class FieldPredicateTest {
 
         ProtobufInspector<Car.Sedan> pi = new ProtobufInspector<>(list);
 
-        assertTrue("Honda", pi.test(isHonda1999));
-        assertTrue("1999", pi.test(isHonda1999));
+        assertTrue("Honda", pi.xtest(isHonda1999));
+        assertTrue("1999", pi.xtest(isHonda1999));
     }
 
     @SafeVarargs

@@ -15,19 +15,14 @@ public class FieldPredicate<MessageT, FieldT> implements PiPredicate<MessageT> {
     }
 
     // protobufInspector is only ysed to record success/failure
-    public boolean test(ProtobufInspector<MessageT> protobufInspector, AuditTrail auditTrail, MessageT protobufMessage) {
+    public boolean test(ProtobufInspector<MessageT> xxx, AuditTrail auditTrail, MessageT protobufMessage) {
         boolean result = fieldPredicate.test(fieldExtractor.apply(protobufMessage));
         if (result) {
-            //System.out.println("Embedded: " + protobufInspector.auditTrail);
-            //System.out.println("Free:     " + auditTrail);
-            //assert protobufInspector.auditTrail.equals(auditTrail);
-            //protobufInspector.recordSuccess(comment);
-            //auditTrail.success(comment);
-            //System.out.println("Embedded: " + protobufInspector.auditTrail);
-            //System.out.println("Free:     " + auditTrail);
+            auditTrail.success(comment);
         }
         else {
             //protobufInspector.recordFailure(comment);
+            auditTrail.fail(comment);
         }
         return result;
     }

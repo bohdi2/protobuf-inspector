@@ -150,13 +150,9 @@ public class ProtobufInspector<MessageT> {
         return ss.subList(1, ss.size());
     }
 
-    // Add a comment to audit trail
-    public ProtobufInspector<MessageT> comment(String s) {
-        auditTrail = auditTrail.comment(s);
-        return this;
-    }
 
-    public ProtobufInspector<MessageT> dump(String comment) {
+
+    public ProtobufInspector<MessageT> dumpCurrentProtobuf(String comment) {
         if (protobufs.isEmpty())
             System.err.format("Message[%s]: Empty%n", comment);
         else
@@ -237,12 +233,24 @@ public class ProtobufInspector<MessageT> {
         }
     }
 
-    public void recordSuccess(String comment) {
-        auditTrail = auditTrail.success(comment);
+    // Add a comment to audit trail
+    public ProtobufInspector<MessageT> comment(String s) {
+        auditTrail.comment(s);
+        return this;
     }
 
-    public void recordFailure(String comment) {
-        auditTrail = auditTrail.fail(comment);
+    public ProtobufInspector<MessageT> recordSuccess(String comment) {
+        auditTrail.success(comment);
+        return this;
+    }
+
+    public ProtobufInspector<MessageT> recordFailure(String comment) {
+        auditTrail.fail(comment);
+        return this;
+    }
+
+    public void dumpAuditTrail() {
+        System.err.println("Audit: " + auditTrail);
     }
 
     public AuditTrail getAuditTrail() {

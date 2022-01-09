@@ -241,10 +241,25 @@ public class ProtobufInspectorTest {
     }
 
 
+    @Test
+    public void test_auditTrail() {
+        List<Message> list = new ArrayList<>();
+        list.add(createCar("Honda", 2007));
+
+        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
+        inspector
+                .comment("Hello")
+                .comment("GoodBye")
+                .recordSuccess("good")
+                .recordFailure("bad")
+                .dumpAuditTrail();
+    }
+
+
     // ToDo:
 //    @Test
 //    public void test_expectField_With_Bad_Value() {
-//        List<Message> list = new ArrayList<Message>();
+//        List<Message> list = new ArrayList<>();
 //        list.add(createCar("Honda", 2007));
 //
 //        thrown.expect(ProtobufInspectorException.class);

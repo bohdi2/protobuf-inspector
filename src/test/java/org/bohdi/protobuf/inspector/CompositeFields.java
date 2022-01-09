@@ -21,9 +21,9 @@ class CompositeFields {
             this.makePredicate = makePredicate;
             this.yearPredicate = yearPredicate;
         }
-        public boolean test(ProtobufInspector<Car.Sedan> auditor, AuditTrail auditTrail, Car.Sedan protobuf) {
-            auditor.comment("IsSedan");
-            boolean result = makePredicate.test(auditor, auditTrail, protobuf) && yearPredicate.test(auditor, auditTrail, protobuf);
+        public boolean test(ProtobufInspector<Car.Sedan> xxx, AuditTrail auditTrail, Car.Sedan protobuf) {
+            auditTrail.comment("IsSedan");
+            boolean result = makePredicate.test(xxx, auditTrail, protobuf) && yearPredicate.test(xxx, auditTrail, protobuf);
             if (result) {
                 auditTrail.success("IsSedan: Good");
             }

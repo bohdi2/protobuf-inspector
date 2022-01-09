@@ -26,15 +26,14 @@ class AuditTrail {
     }
 
     AuditTrail fail(String s) {
-        trace.add("fail: " + s);
+        trace.add("failure: " + s);
         numberOfTests++;
         numberOfErrors++;
         return this;
     }
 
     AuditTrail comment(String s) {
-        List<String> newTrace = new ArrayList<>(trace);
-        trace.add("comment: " + s);
+        trace.add("comment: '" + s + "'");
         return this;
     }
 
@@ -53,10 +52,10 @@ class AuditTrail {
 
     @Override
     public String toString() {
-        return String.format("tests: %d, errors: %d, trace: %n%s",
+        return String.format("tests: %d, errors: %d, trace: {%s}",
                 numberOfTests,
                 numberOfErrors,
-                String.join("\n", trace) + "\n");
+                String.join(", ", trace));
     }
 
 

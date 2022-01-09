@@ -26,8 +26,8 @@ public class FieldPredicateTest {
         FieldPredicate<Car.Sedan, String> fs = new FieldPredicate<>("Make == Honda", Car.Sedan::getMake, v->v.equals("Honda"));
         FieldPredicate<Car.Sedan, Integer> fi = new FieldPredicate<>("Year == 1999", Car.Sedan::getYear, v->v == 1999);
 
-        assertTrue("Honda", pi.test(fs));
-        assertTrue("1999", pi.test(fi));
+        assertTrue("Honda", pi.testField(fs));
+        assertTrue("1999", pi.testField(fi));
 
         assertEquals(list("success: Make == Honda", "success: Year == 1999"), pi.getAuditTrail().trace);
     }
@@ -42,8 +42,8 @@ public class FieldPredicateTest {
 
         ProtobufInspector<Car.Sedan> pi = new ProtobufInspector<>(list);
 
-        assertTrue("Honda", pi.xtest(isHonda1999));
-        assertTrue("1999", pi.xtest(isHonda1999));
+        assertTrue("Honda", pi.testField(isHonda1999));
+        assertTrue("1999", pi.testField(isHonda1999));
     }
 
     @SafeVarargs

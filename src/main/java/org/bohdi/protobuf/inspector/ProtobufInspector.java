@@ -109,8 +109,15 @@ public class ProtobufInspector<MessageT> {
     }
 
 
-    public boolean test(PiPredicate<MessageT> p) {
-        return p.test(this, protobufs.get(0));
+    public boolean testField(PiPredicate<MessageT> p) {
+        if (p.test(this, protobufs.get(0))) {
+            //this.recoredSuccess("CJH recordSuccess");
+            return true;
+        }
+        else {
+            //this.recordFailure("CJH recordFailure");
+            return false;
+        }
     }
 
 
@@ -250,7 +257,7 @@ public class ProtobufInspector<MessageT> {
         }
     }
 
-    public void recoredSuccess(String comment) {
+    public void recordSuccess(String comment) {
         auditTrail = auditTrail.success(comment);
     }
 

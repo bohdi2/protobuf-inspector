@@ -1,0 +1,5 @@
+
+java.lang.AssertionError:
+
+expected:<[success: Make == Honda, success: Year == 1999]>
+ but was:<[success: Make == Honda, success: CJH recordSuccess, success: Year == 1999, success: CJH recordSuccess]>

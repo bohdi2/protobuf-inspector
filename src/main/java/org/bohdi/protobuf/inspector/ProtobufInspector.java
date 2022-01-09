@@ -114,21 +114,21 @@ public class ProtobufInspector<MessageT> {
     }
 
 
-    public <FieldT> ProtobufInspector<MessageT> expect(Function<MessageT, FieldT> fieldExtractor, Predicate<FieldT> p) {
-        return expect(new FieldPredicate<>("Foo2", fieldExtractor, p));
-    }
-
     public <FieldT> ProtobufInspector<MessageT> expectEquals(Function<MessageT, FieldT> fieldExtractor, FieldT expected) {
         return expect(fieldExtractor, v->v.equals(expected));
     }
 
-    public ProtobufInspector<MessageT> expect(PiPredicate<MessageT> p) {
-        assertTrue("X", p.test(this, protobufs.get(0)));
+    public <FieldT> ProtobufInspector<MessageT> expect(Function<MessageT, FieldT> fieldExtractor, Predicate<FieldT> p) {
+        return expect(new FieldPredicate<>("Foo2", fieldExtractor, p));
+    }
+
+    private ProtobufInspector<MessageT> expect(PiPredicate<MessageT> p) {
+        assertTrue("expect", p.test(this, protobufs.get(0)));
         return this;
 
     }
 
-    public ProtobufInspector<MessageT> expect(PiPredicate<MessageT>... predicates) {
+    private ProtobufInspector<MessageT> expect(PiPredicate<MessageT>... predicates) {
         ProtobufInspector<MessageT> pi = this;
 
         for (PiPredicate<MessageT> predicate : predicates) {
@@ -246,7 +246,7 @@ public class ProtobufInspector<MessageT> {
             auditTrail = auditTrail.success(comment);
         else {
             auditTrail = auditTrail.fail(comment);
-            throw new ProtobufInspectorException(auditTrail);
+            throw new ProtobufInspectorException(comment);
         }
     }
 
@@ -255,6 +255,7 @@ public class ProtobufInspector<MessageT> {
     }
 
     public void recordFailure(String comment) {
+        System.out.println("CJH this seems wrong");
         auditTrail = auditTrail.success(comment);
     }
 

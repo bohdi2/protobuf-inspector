@@ -6,4 +6,8 @@ public class ProtobufInspectorException extends RuntimeException {
     public ProtobufInspectorException(AuditTrail audit) {
         super(audit.toString());
     }
+
+    public ProtobufInspectorException(String audit) {
+        super(audit);
+    }
 }

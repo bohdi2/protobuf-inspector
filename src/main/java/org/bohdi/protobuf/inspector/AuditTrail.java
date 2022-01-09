@@ -48,7 +48,7 @@ class AuditTrail {
         return String.format("tests: %d, errors: %d, trace: %n%s",
                 numberOfTests,
                 numberOfErrors,
-                             String.join("\n", trace) + "\n");
+                String.join("\n", trace) + "\n");
     }
 
 

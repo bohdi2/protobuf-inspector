@@ -241,8 +241,8 @@ public class ProtobufInspectorTest {
     }
 
 
-    // ToDo: Does not compile. Why?
-    //@Test
+    // ToDo:
+//    @Test
 //    public void test_expectField_With_Bad_Value() {
 //        List<Message> list = new ArrayList<Message>();
 //        list.add(createCar("Honda", 2007));
@@ -252,7 +252,8 @@ public class ProtobufInspectorTest {
 //
 //        ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
 //        inspector
-//                .expectEquals(m->m.getMake(), "Hondo");
+//                .filterByProtobufType(Car.Sedan.class)
+//                .expectEquals(Car.Sedan::getMake, "Hondo");
 //    }
 
 

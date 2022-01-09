@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.bohdi.protobuf.inspector.AddressBookProtos.*;
-import static org.bohdi.protobuf.inspector.ExpectationHelper.*;
+import static org.bohdi.protobuf.inspector.CompositeFields.*;
 import static org.bohdi.protobuf.inspector.ProtobufHelper.*;
 
 public class ProtobufInspectorTest {

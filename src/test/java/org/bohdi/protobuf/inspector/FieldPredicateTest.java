@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.bohdi.protobuf.inspector.ExpectationHelper.isHonda1999;
+import static org.bohdi.protobuf.inspector.CompositeFields.isHonda1999;
 import static org.bohdi.protobuf.inspector.ProtobufHelper.createCar;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -29,11 +29,11 @@ public class FieldPredicateTest {
         assertTrue("Honda", pi.testField(fs));
         assertTrue("1999", pi.testField(fi));
 
-        assertEquals(list("success: Make == Honda", "success: Year == 1999"), pi.getAuditTrail().trace);
+        //assertEquals(list("success: Make == Honda", "success: Year == 1999"), pi.getAuditTrail().trace);
     }
 
     @Test
-    public void test_isSedan() {
+    public void test_compoite_field_isSedan() {
 
         List<Car.Sedan> list = new ArrayList<>();
         list.add(createCar("Honda", 1999));
@@ -42,7 +42,7 @@ public class FieldPredicateTest {
 
         ProtobufInspector<Car.Sedan> pi = new ProtobufInspector<>(list);
 
-        assertTrue("Honda", pi.testField(isHonda1999));
+        assertTrue("Honda", pi.testField(isHonda1999)); // Bad
         assertTrue("1999", pi.testField(isHonda1999));
     }
 

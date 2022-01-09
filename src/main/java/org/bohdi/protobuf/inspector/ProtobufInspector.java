@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 public class ProtobufInspector<MessageT> {
     private final List<MessageT> protobufs;  // "protobufs" and "messages" are used interchangeably
-    private AuditTrail auditTrail;
+    public AuditTrail auditTrail; // ToDo move to private
 
     public ProtobufInspector(List<MessageT> protobufs) {
         this(new AuditTrail(), protobufs);
@@ -143,26 +143,6 @@ public class ProtobufInspector<MessageT> {
         }
         return pi;
     }
-
-
-
-//    public ProtobufInspector<T> map(Expectation... expectations) {
-//        return map(Arrays.asList(expectations));
-//    }
-//
-//    public ProtobufInspector<T> map(List<Expectation> list) {
-//        if (list.isEmpty())
-//            return this;
-//
-//        int len = list.size();
-//        ProtobufInspector<T> pi = list.get(0).check(this);
-//
-//        for (int i = 1; i<len; i++) {
-//            pi = pi.nextMessage();
-//            pi = list.get(i).check(pi);
-//        }
-//        return pi;
-//    }
 
 
 

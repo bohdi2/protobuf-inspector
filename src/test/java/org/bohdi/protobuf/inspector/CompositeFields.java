@@ -1,7 +1,7 @@
 package org.bohdi.protobuf.inspector;
 
 
-class ExpectationHelper {
+class CompositeFields {
 
     static final FieldPredicate<Car.Sedan, String> isHonda = new FieldPredicate<>("Make", Car.Sedan::getMake, v->v.equals("Honda"));
     static final FieldPredicate<Car.Sedan, String> isToyota = new FieldPredicate<>("Make", Car.Sedan::getMake, v->v.equals("Toyota"));
@@ -10,6 +10,8 @@ class ExpectationHelper {
     static final IsSedan isHonda1999 = new IsSedan(isHonda, is1999);
     static final IsSedan isHonda2001 = new IsSedan(isHonda, is2001);
     static final IsSedan isToyota1999 = new IsSedan(isToyota, is1999);
+
+    // A composite predicate. Checks multiple fields.
 
     static class IsSedan implements PiPredicate<Car.Sedan> {
         private final FieldPredicate makePredicate;

@@ -3,6 +3,7 @@ package org.bohdi.protobuf.inspector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 // Used by ProtobufInspector. Is an audit trail of protobuf messages and expectations.
 // This can help in debugging application or ProtobufInspector issues.
@@ -40,6 +41,19 @@ class AuditTrail {
         List<String> newTrace = new ArrayList<>(trace);
         newTrace.add("comment: " + s);
         return new AuditTrail(numberOfErrors, numberOfTests, newTrace);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AuditTrail that = (AuditTrail) o;
+        return numberOfErrors == that.numberOfErrors && numberOfTests == that.numberOfTests && trace.equals(that.trace);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(numberOfErrors, numberOfTests, trace);
     }
 
     @Override

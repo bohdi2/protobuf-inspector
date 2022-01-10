@@ -14,23 +14,15 @@ class CompositeFields {
     // A composite predicate. Checks multiple fields.
 
     static class IsSedan implements PiPredicate<Car.Sedan> {
-        private final FieldPredicate makePredicate;
-        private final FieldPredicate yearPredicate;
+        private final FieldPredicate<Car.Sedan, String> makePredicate;
+        private final FieldPredicate<Car.Sedan, Integer> yearPredicate;
 
-        public IsSedan(FieldPredicate makePredicate, FieldPredicate yearPredicate) {
+        public IsSedan(FieldPredicate<Car.Sedan, String> makePredicate, FieldPredicate<Car.Sedan, Integer> yearPredicate) {
             this.makePredicate = makePredicate;
             this.yearPredicate = yearPredicate;
         }
-        public boolean test(ProtobufInspector<Car.Sedan> xxx, AuditTrail auditTrail, Car.Sedan protobuf) {
-            auditTrail.comment("IsSedan");
-            boolean result = makePredicate.test(xxx, auditTrail, protobuf) && yearPredicate.test(xxx, auditTrail, protobuf);
-            if (result) {
-                auditTrail.success("IsSedan: Good");
-            }
-            else {
-                auditTrail.fail("IsSedan: No good");
-            }
-            return result;
+        public boolean test(Car.Sedan protobuf) {
+            return makePredicate.test(protobuf) && yearPredicate.test(protobuf);
         }
 
         public String toString() {

@@ -14,17 +14,8 @@ public class FieldPredicate<MessageT, FieldT> implements PiPredicate<MessageT> {
         this.fieldPredicate = fieldPredicate;
     }
 
-    // protobufInspector is only ysed to record success/failure
-    public boolean test(ProtobufInspector<MessageT> xxx, AuditTrail auditTrail, MessageT protobufMessage) {
-        boolean result = fieldPredicate.test(fieldExtractor.apply(protobufMessage));
-        if (result) {
-            auditTrail.success(comment);
-        }
-        else {
-            //protobufInspector.recordFailure(comment);
-            auditTrail.fail(comment);
-        }
-        return result;
+    public boolean test(MessageT protobufMessage) {
+        return fieldPredicate.test(fieldExtractor.apply(protobufMessage));
     }
 
 

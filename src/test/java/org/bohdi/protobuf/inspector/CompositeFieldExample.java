@@ -3,15 +3,13 @@ package org.bohdi.protobuf.inspector;
 
 import java.util.function.Predicate;
 
-class CompositeFields {
+class CompositeFieldExample {
 
     static final FieldPredicate<Car.Sedan, String> isHonda = new FieldPredicate<>( Car.Sedan::getMake, v->v.equals("Honda"));
-    static final FieldPredicate<Car.Sedan, String> isToyota = new FieldPredicate<>(Car.Sedan::getMake, v->v.equals("Toyota"));
+    static final FieldPredicate<Car.Sedan, String> isToyota = new FieldPredicate<>( Car.Sedan::getMake, v->v.equals("Toyota"));
     static final FieldPredicate<Car.Sedan, Integer> is1999 = new FieldPredicate<>(Car.Sedan::getYear, v->v == 1999);
     static final FieldPredicate<Car.Sedan, Integer> is2001 = new FieldPredicate<>(Car.Sedan::getYear, v->v == 2001);
     static final IsSedan isHonda1999 = new IsSedan(isHonda, is1999);
-    static final IsSedan isHonda2001 = new IsSedan(isHonda, is2001);
-    static final IsSedan isToyota1999 = new IsSedan(isToyota, is1999);
 
     // A composite predicate. Checks multiple fields.
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,8 +44,9 @@ public class ProtobufInspector<MessageT> {
         List<C> found = new ArrayList<>();
 
         for (MessageT protobuf : messages) {
-            if (clazz.isInstance(protobuf))
-                found.add((C) protobuf);
+            if (clazz.isInstance(protobuf)) {
+                found.add(clazz.cast(protobuf));
+            }
         }
 
         return new ProtobufInspector<>(found);
@@ -60,41 +62,30 @@ public class ProtobufInspector<MessageT> {
 
 
 
+    public <FieldT> ProtobufInspector<MessageT> filterByEquals(Function<MessageT, FieldT> fieldExtractor, FieldT expectedValue) {
+        return filter(fieldExtractor, v->v.equals(expectedValue));
+    }
 
     public <FieldT> ProtobufInspector<MessageT> filter(Function<MessageT, FieldT> fieldExtractor, Predicate<FieldT> p) {
         return filter(new FieldPredicate<>(fieldExtractor, p));
     }
 
-    public <FieldT> ProtobufInspector<MessageT> filterEquals(Function<MessageT, FieldT> fieldExtractor, FieldT expectedValue) {
-        return filter(fieldExtractor, v->v.equals(expectedValue));
-    }
-
+    // Filter our messages that do not match the predicate
     public ProtobufInspector<MessageT> filter(Predicate<MessageT> p) {
-        List<MessageT> found = new ArrayList<>();
+        List<MessageT> ps = messages.stream().filter(p).collect(Collectors.toList());
 
-        for (MessageT protobuf : messages) {
-            if (p.test(protobuf))
-                found.add(protobuf);
-        }
-
-        return new ProtobufInspector<>(found);
+        return new ProtobufInspector<>(ps);
     }
 
     @SafeVarargs
-    public final ProtobufInspector<MessageT> filter(Predicate<MessageT>... predicates) {
-        ProtobufInspector<MessageT> pi = this;
+    public final ProtobufInspector<MessageT> multiFilter(Predicate<MessageT>... predicates) {
+        ProtobufInspector<MessageT> filteredInspector = this;
 
         for (Predicate<MessageT> predicate : predicates) {
-            pi = pi.filter(predicate);
+            filteredInspector = filteredInspector.filter(predicate);
         }
-        return pi;
+        return filteredInspector;
     }
-
-
-    public void testField(Predicate<MessageT> p) {
-        assertThat(p).accepts(messages.get(0));
-    }
-
 
     public <FieldT> ProtobufInspector<MessageT> expectEquals(Function<MessageT, FieldT> fieldExtractor, FieldT expected) {
         return expect(fieldExtractor, v->v.equals(expected));

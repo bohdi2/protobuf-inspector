@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.bohdi.protobuf.inspector.AddressBookProtos.*;
-import static org.bohdi.protobuf.inspector.CompositeFields.*;
+import static org.bohdi.protobuf.inspector.CompositeFieldExample.*;
 import static org.bohdi.protobuf.inspector.ProtobufHelper.*;
 
 public class ProtobufInspectorTest {
@@ -145,7 +145,7 @@ public class ProtobufInspectorTest {
 
                 // but just 3 cars
                 .expectMessageCount(3)
-                .filterEquals(Car.Sedan::getMake, "Honda")
+                .filterByEquals(Car.Sedan::getMake, "Honda")
 
                 // and just 2 Hondas
                 .expectMessageCount(2)
@@ -208,18 +208,21 @@ public class ProtobufInspectorTest {
                 .expectMessageCount(4)
 
                 .filterByMessageType(Car.Sedan.class)
-                .filterEquals(Car.Sedan::getMake, "Honda")
-                .filterEquals(Car.Sedan::getYear, 2001)
+                .expectMessageCount(3)
 
+                .filterByEquals(Car.Sedan::getMake, "Honda")
+                .filterByEquals(Car.Sedan::getYear, 2001)
                 .expectMessageCount(1)
+
                 .expectMessageOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getMake, "Honda")
                 .expectEquals(Car.Sedan::getYear, 2001)
+
                 .expectNoMoreMessages();
     }
 
     @Test
-    public void test_filter_with_multiple_predicates() {
+    public void test_with_multiple_predicates() {
         List<Message> list = new ArrayList<>();
         list.add(createAddressBookWithJoeAndSue());
         list.add(createCar("Honda", 1999));
@@ -230,12 +233,39 @@ public class ProtobufInspectorTest {
 
         inspector
                 .expectMessageCount(4)
-                .filterByMessageType(Car.Sedan.class)
-                .filter(isHonda, is2001)
 
+                .filterByMessageType(Car.Sedan.class)
+                .expectMessageCount(3)
+
+                .multiFilter(isHonda, is2001)
                 .expectMessageCount(1)
                 .expectMessageOfType(Car.Sedan.class)
                 .expectEquals(Car.Sedan::getMake, "Honda")
+                .expectEquals(Car.Sedan::getYear, 2001)
+
+                .expectNoMoreMessages();
+    }
+
+    @Test
+    public void test_each_car() {
+        List<Message> list = new ArrayList<>();
+        list.add(createCar("Honda", 1999));
+        list.add(createCar("Toyota", 2001));
+
+        ProtobufInspector<Car.Sedan> carInspector = new ProtobufInspector<>(list)
+                .filterByMessageType(Car.Sedan.class)
+                .expectMessageCount(2);
+
+
+        carInspector
+                .filterByMessageType(Car.Sedan.class)
+                .filter(isHonda)
+                .expectEquals(Car.Sedan::getYear, 1999)
+                .expectNoMoreMessages();
+
+        carInspector
+                .filterByMessageType(Car.Sedan.class)
+                .filter(isToyota)
                 .expectEquals(Car.Sedan::getYear, 2001)
                 .expectNoMoreMessages();
     }

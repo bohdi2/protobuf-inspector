@@ -101,6 +101,7 @@ public class ProtobufInspector<MessageT> {
     }
 
 
+    // Display the protobuf being inspected. 
 
     public ProtobufInspector<MessageT> dumpCurrentProtobuf(String comment) {
         if (messages.isEmpty())

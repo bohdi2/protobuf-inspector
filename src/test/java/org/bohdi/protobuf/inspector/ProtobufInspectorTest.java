@@ -1,21 +1,17 @@
 package org.bohdi.protobuf.inspector;
 
 import com.google.protobuf.Message;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.bohdi.protobuf.inspector.AddressBookProtos.*;
 import static org.bohdi.protobuf.inspector.CompositeFieldExample.*;
 import static org.bohdi.protobuf.inspector.ProtobufHelper.*;
 
 public class ProtobufInspectorTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void test_Simple_Lookups_With_Multiple_Messages() {
@@ -277,13 +273,16 @@ public class ProtobufInspectorTest {
         List<Message> list = new ArrayList<>();
         list.add(createCar("Honda", 2007));
 
-        thrown.expect(AssertionError.class);
-        thrown.expectMessage("");
-
         ProtobufInspector<Message> inspector = new ProtobufInspector<>(list);
-        inspector
-                .filterByMessageType(Car.Sedan.class)
-                .expectEquals(Car.Sedan::getMake, "Hondooo");
+//        inspector
+//                .filterByMessageType(Car.Sedan.class)
+//                .expectEquals(Car.Sedan::getMake, "Hondooo");
+
+        assertThatExceptionOfType(AssertionError.class).isThrownBy(
+                () ->         inspector
+                        .filterByMessageType(Car.Sedan.class)
+                        .expectEquals(Car.Sedan::getMake, "Hondooo")
+        );
     }
 
 

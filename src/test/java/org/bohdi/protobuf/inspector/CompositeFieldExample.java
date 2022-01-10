@@ -21,6 +21,7 @@ class CompositeFieldExample {
             this.makePredicate = makePredicate;
             this.yearPredicate = yearPredicate;
         }
+
         public boolean test(Car.Sedan protobuf) {
             return makePredicate.test(protobuf) && yearPredicate.test(protobuf);
         }

@@ -1,6 +1,8 @@
 package org.bohdi.protobuf.inspector;
 
 
+import java.util.function.Predicate;
+
 class CompositeFields {
 
     static final FieldPredicate<Car.Sedan, String> isHonda = new FieldPredicate<>("Make", Car.Sedan::getMake, v->v.equals("Honda"));
@@ -13,7 +15,7 @@ class CompositeFields {
 
     // A composite predicate. Checks multiple fields.
 
-    static class IsSedan implements PiPredicate<Car.Sedan> {
+    static class IsSedan implements Predicate<Car.Sedan> {
         private final FieldPredicate<Car.Sedan, String> makePredicate;
         private final FieldPredicate<Car.Sedan, Integer> yearPredicate;
 

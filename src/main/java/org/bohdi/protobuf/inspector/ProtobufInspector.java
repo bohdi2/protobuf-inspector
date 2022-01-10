@@ -79,7 +79,7 @@ public class ProtobufInspector<MessageT> {
         return filter(fieldExtractor, v->v.equals(expectedValue));
     }
 
-    public ProtobufInspector<MessageT> filter(PiPredicate<MessageT> p) {
+    public ProtobufInspector<MessageT> filter(Predicate<MessageT> p) {
         List<MessageT> found = new ArrayList<>();
 
         for (MessageT protobuf : protobufs) {
@@ -91,17 +91,17 @@ public class ProtobufInspector<MessageT> {
     }
 
     @SafeVarargs
-    public final ProtobufInspector<MessageT> filter(PiPredicate<MessageT>... predicates) {
+    public final ProtobufInspector<MessageT> filter(Predicate<MessageT>... predicates) {
         ProtobufInspector<MessageT> pi = this;
 
-        for (PiPredicate<MessageT> predicate : predicates) {
+        for (Predicate<MessageT> predicate : predicates) {
             pi = pi.filter(predicate);
         }
         return pi;
     }
 
 
-    public boolean testField(PiPredicate<MessageT> p) {
+    public boolean testField(Predicate<MessageT> p) {
         return p.test(protobufs.get(0));
     }
 
@@ -114,16 +114,16 @@ public class ProtobufInspector<MessageT> {
         return expect(new FieldPredicate<>("Foo2", fieldExtractor, p));
     }
 
-    private ProtobufInspector<MessageT> expect(PiPredicate<MessageT> p) {
+    private ProtobufInspector<MessageT> expect(Predicate<MessageT> p) {
         assertTrue("expect", p.test(protobufs.get(0)));
         return this;
 
     }
 
-    private ProtobufInspector<MessageT> expect(PiPredicate<MessageT>... predicates) {
+    private ProtobufInspector<MessageT> expect(Predicate<MessageT>... predicates) {
         ProtobufInspector<MessageT> pi = this;
 
-        for (PiPredicate<MessageT> predicate : predicates) {
+        for (Predicate<MessageT> predicate : predicates) {
             pi = pi.expect(predicate);
         }
         return pi;

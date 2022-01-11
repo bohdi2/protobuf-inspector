@@ -1,6 +1,5 @@
 ProtobufInspector is meant to be used by test cases to dig into a
 Protobuf Message object and validate the contents.
-
 Years ago I used it in an acceptence framework which sent and
 received complicated protobuf messages to a server.
 

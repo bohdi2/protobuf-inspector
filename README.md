@@ -1,11 +1,14 @@
-ProtobufInspector is used by test cases to dig into a
-protobuf Message object and validate the contents.
+ProtobufInspector is meant to be used by test cases to dig into a
+Protobuf Message object and validate the contents.
 
-I used it in an acceptence framework which sent and
-received complicated protobuf messages to a server and
-I needed to test the messages received.
+Years ago I used it in an acceptence framework which sent and
+received complicated protobuf messages to a server.
 
-Need documentation
+I recommend using Google Truth because it has an extension 
+for [Protobufs](https://truth.dev/protobufs) which is widely used. 
+
+The current code could be used as a starting off point for inspecting other
+formats of messages like Simple Binary Encoding.
 
 # Examples
 
